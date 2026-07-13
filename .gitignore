@@ -1,0 +1,36 @@
+# Godot
+.godot/
+*.tmp
+*.log
+runtime-logs/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build exports
+export/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# .NET / Godot C#
+.mono/
+*.csproj.user
+*.tmp.csproj
+obj/
+bin/
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
+  

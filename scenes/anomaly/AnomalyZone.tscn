@@ -1,0 +1,368 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/anomaly/AnomalyZoneController.cs" id="1"]
+[ext_resource type="Script" path="res://scripts/anomaly/AnomalyPlayerController.cs" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/anomaly_zone_map.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/bramble_wall_full.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/bramble_wall_half.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/bramble_wall_residual.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/structures/deep_gate_marker.png" id="10"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/structures/wrench_calibrator.png" id="11"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_left"]
+size = Vector2(32, 1664)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_right"]
+size = Vector2(32, 1664)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
+size = Vector2(2432, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bottom"]
+size = Vector2(2432, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_light_bramble"]
+size = Vector2(296, 104)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_a"]
+size = Vector2(680, 180)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_b"]
+size = Vector2(220, 560)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_c"]
+size = Vector2(520, 180)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_d"]
+size = Vector2(420, 180)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_e"]
+size = Vector2(320, 560)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_f"]
+size = Vector2(640, 260)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_g"]
+size = Vector2(520, 210)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_h"]
+size = Vector2(220, 280)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_i"]
+size = Vector2(320, 320)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_j"]
+size = Vector2(360, 180)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_blocker_k"]
+size = Vector2(280, 220)
+
+[node name="AnomalyZone" type="Node2D"]
+script = ExtResource("1")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.78, 0.88, 0.95, 1)
+
+[node name="MapBackground" type="Sprite2D" parent="."]
+centered = false
+position = Vector2(0, 0)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("3")
+
+[node name="Decorations" type="Node2D" parent="."]
+
+[node name="LightBrambleResidual" type="Sprite2D" parent="Decorations"]
+visible = false
+position = Vector2(438, 458)
+scale = Vector2(0.17, 0.17)
+z_index = 7
+rotation = -0.12
+texture = ExtResource("6")
+
+[node name="LightBrambleHalf" type="Sprite2D" parent="Decorations"]
+visible = false
+position = Vector2(438, 456)
+scale = Vector2(0.2, 0.2)
+z_index = 8
+rotation = -0.12
+texture = ExtResource("5")
+
+[node name="LightBramble" type="Sprite2D" parent="Decorations"]
+position = Vector2(438, 452)
+scale = Vector2(0.22, 0.22)
+z_index = 9
+rotation = -0.12
+texture = ExtResource("4")
+
+[node name="AnomalyCore" type="Node2D" parent="Decorations"]
+position = Vector2(1224, 372)
+
+[node name="MaintenanceClue" type="Node2D" parent="Decorations"]
+position = Vector2(522, 216)
+z_index = 6
+
+[node name="RecordBoard" type="Sprite2D" parent="Decorations/MaintenanceClue"]
+position = Vector2(-18, 6)
+rotation = -0.08
+scale = Vector2(0.09, 0.09)
+modulate = Color(0.72, 0.82, 0.90, 0.92)
+texture = ExtResource("10")
+
+[node name="PrismShard" type="Sprite2D" parent="Decorations/MaintenanceClue"]
+position = Vector2(52, 16)
+rotation = 0.42
+scale = Vector2(0.08, 0.08)
+modulate = Color(0.46, 0.72, 0.80, 0.64)
+texture = ExtResource("11")
+
+[node name="SubAreaEntrance" type="Node2D" parent="Decorations"]
+position = Vector2(1974, 270)
+
+[node name="EntryBeacon" type="Sprite2D" parent="Decorations/SubAreaEntrance"]
+position = Vector2(0, 18)
+scale = Vector2(0.11, 0.11)
+z_index = 8
+modulate = Color(0.86, 0.96, 1, 0.95)
+texture = ExtResource("10")
+
+[node name="EntryLabel" type="Label" parent="Decorations/SubAreaEntrance"]
+position = Vector2(-116, 68)
+z_index = 9
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.92, 0.98, 1, 0.96)
+theme_override_colors/font_shadow_color = Color(0.05, 0.10, 0.14, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "深层入口"
+
+[node name="InteractPoint" type="Node2D" parent="Decorations/SubAreaEntrance"]
+position = Vector2(0, 134)
+
+[node name="ExitMarker" type="Sprite2D" parent="Decorations"]
+position = Vector2(202, 1338)
+scale = Vector2(0.10, 0.10)
+z_index = 6
+modulate = Color(0.90, 0.98, 1, 0.96)
+texture = ExtResource("10")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(258, 1370)
+z_index = 10
+script = ExtResource("2")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+enabled = true
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+limit_left = 0
+limit_top = 0
+limit_right = 2304
+limit_bottom = 1536
+
+[node name="Bounds" type="Node2D" parent="."]
+
+[node name="LeftWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(-16, 768)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/LeftWall"]
+shape = SubResource("RectangleShape2D_left")
+
+[node name="RightWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(2320, 768)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/RightWall"]
+shape = SubResource("RectangleShape2D_right")
+
+[node name="TopWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1152, -16)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/TopWall"]
+shape = SubResource("RectangleShape2D_top")
+
+[node name="BottomWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1152, 1552)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/BottomWall"]
+shape = SubResource("RectangleShape2D_bottom")
+
+[node name="LightBrambleBlocker" type="StaticBody2D" parent="Bounds"]
+position = Vector2(438, 484)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/LightBrambleBlocker"]
+shape = SubResource("RectangleShape2D_light_bramble")
+
+[node name="TopLeftRuinVoid" type="StaticBody2D" parent="Bounds"]
+position = Vector2(372, 122)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/TopLeftRuinVoid"]
+shape = SubResource("RectangleShape2D_blocker_a")
+
+[node name="WestOuterVoid" type="StaticBody2D" parent="Bounds"]
+position = Vector2(90, 438)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/WestOuterVoid"]
+shape = SubResource("RectangleShape2D_blocker_b")
+
+[node name="UpperCenterChasm" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1008, 252)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/UpperCenterChasm"]
+shape = SubResource("RectangleShape2D_blocker_c")
+
+[node name="UpperRightOuterVoid" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1858, 214)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/UpperRightOuterVoid"]
+shape = SubResource("RectangleShape2D_blocker_d")
+
+[node name="FarEastVoid" type="StaticBody2D" parent="Bounds"]
+position = Vector2(2186, 624)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/FarEastVoid"]
+shape = SubResource("RectangleShape2D_blocker_e")
+
+[node name="SouthEastChasm" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1870, 1408)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/SouthEastChasm"]
+shape = SubResource("RectangleShape2D_blocker_f")
+
+[node name="SouthCenterDrop" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1112, 1440)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/SouthCenterDrop"]
+shape = SubResource("RectangleShape2D_blocker_g")
+
+[node name="SouthWestOuterVoid" type="StaticBody2D" parent="Bounds"]
+position = Vector2(112, 1138)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/SouthWestOuterVoid"]
+shape = SubResource("RectangleShape2D_blocker_h")
+
+[node name="WestInnerChasm" type="StaticBody2D" parent="Bounds"]
+position = Vector2(372, 742)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/WestInnerChasm"]
+shape = SubResource("RectangleShape2D_blocker_i")
+
+[node name="LowerRingMoat" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1120, 786)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/LowerRingMoat"]
+shape = SubResource("RectangleShape2D_blocker_j")
+
+[node name="EastLowerGap" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1712, 1102)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/EastLowerGap"]
+shape = SubResource("RectangleShape2D_blocker_k")
+
+[node name="Atmosphere" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="Tint" type="ColorRect" parent="Atmosphere"]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.06, 0.16, 0.22, 0.22)
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="TopBar" type="Panel" parent="UI"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 640.0
+offset_bottom = 92.0
+
+[node name="AreaLabel" type="Label" parent="UI/TopBar"]
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 260.0
+offset_bottom = 34.0
+text = "异常区废墟"
+
+[node name="ObjectiveLabel" type="Label" parent="UI/TopBar"]
+offset_left = 16.0
+offset_top = 38.0
+offset_right = 590.0
+offset_bottom = 66.0
+text = "当前目标：调查异常光棱"
+
+[node name="BottomBar" type="Panel" parent="UI"]
+offset_left = 24.0
+offset_top = 652.0
+offset_right = 920.0
+offset_bottom = 704.0
+
+[node name="HintLabel" type="Label" parent="UI/BottomBar"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 860.0
+offset_bottom = 40.0
+text = "靠近异常光棱后按 E 调查"
+
+[node name="ToastLabel" type="Label" parent="UI"]
+visible = false
+offset_left = 410.0
+offset_top = 118.0
+offset_right = 930.0
+offset_bottom = 156.0
+horizontal_alignment = 1
+text = "提示"
+
+[node name="WorldMarkerLabel" type="Label" parent="UI"]
+visible = false
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 180.0
+offset_bottom = 28.0
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.94, 0.99, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.10, 0.14, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+horizontal_alignment = 1
+text = "目标"
+
+[node name="DialoguePanel" type="PanelContainer" parent="UI"]
+visible = false
+offset_left = 160.0
+offset_top = 480.0
+offset_right = 1120.0
+offset_bottom = 688.0
+
+[node name="Margin" type="MarginContainer" parent="UI/DialoguePanel"]
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="UI/DialoguePanel/Margin"]
+
+[node name="SpeakerLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
+text = "异常区"
+
+[node name="BodyLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 104)
+autowrap_mode = 3
+text = "……"
+
+[node name="ContinueLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
+horizontal_alignment = 2
+text = "按 E 继续"

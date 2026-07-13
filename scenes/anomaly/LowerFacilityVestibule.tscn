@@ -1,0 +1,208 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/anomaly/LowerFacilityVestibuleController.cs" id="1"]
+[ext_resource type="Script" path="res://scripts/anomaly/AnomalyPlayerController.cs" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/structures/vestibule_gate.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/anomaly/structures/deep_gate_marker.png" id="4"]
+
+[sub_resource type="RectangleShape2D" id="Rect_left"]
+size = Vector2(32, 760)
+
+[sub_resource type="RectangleShape2D" id="Rect_right"]
+size = Vector2(32, 760)
+
+[sub_resource type="RectangleShape2D" id="Rect_top"]
+size = Vector2(1360, 32)
+
+[sub_resource type="RectangleShape2D" id="Rect_bottom"]
+size = Vector2(1360, 32)
+
+[node name="LowerFacilityVestibule" type="Node2D"]
+script = ExtResource("1")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.62, 0.72, 0.83, 1)
+
+[node name="Ground" type="Polygon2D" parent="."]
+color = Color(0.10, 0.14, 0.15, 1)
+polygon = PackedVector2Array(-40, -40, 1320, -40, 1320, 760, -40, 760)
+
+[node name="VestibulePath" type="Polygon2D" parent="."]
+color = Color(0.18, 0.22, 0.24, 1)
+polygon = PackedVector2Array(170, 624, 302, 556, 470, 486, 640, 398, 792, 302, 916, 218, 1020, 192, 1122, 250, 1018, 336, 864, 422, 680, 516, 464, 596, 250, 666)
+
+[node name="GateGlow" type="Polygon2D" parent="."]
+position = Vector2(1000, 202)
+color = Color(0.34, 0.80, 1, 0.18)
+polygon = PackedVector2Array(-124, -66, 124, -66, 152, 0, 124, 66, -124, 66, -152, 0)
+
+[node name="Decorations" type="Node2D" parent="."]
+
+[node name="ExitMarker" type="Sprite2D" parent="Decorations"]
+position = Vector2(176, 632)
+scale = Vector2(0.10, 0.10)
+modulate = Color(0.95, 0.98, 1, 0.92)
+texture = ExtResource("4")
+
+[node name="GateNode" type="Node2D" parent="Decorations"]
+position = Vector2(1000, 202)
+z_index = 3
+
+[node name="Core" type="Sprite2D" parent="Decorations/GateNode"]
+scale = Vector2(0.22, 0.22)
+modulate = Color(0.94, 0.98, 1, 1)
+texture = ExtResource("3")
+
+[node name="PlateA" type="Sprite2D" parent="Decorations/GateNode"]
+visible = false
+position = Vector2(-52, 18)
+rotation = -0.18
+scale = Vector2(0.08, 0.08)
+modulate = Color(0.88, 0.92, 0.98, 0.78)
+texture = ExtResource("4")
+
+[node name="PlateB" type="Sprite2D" parent="Decorations/GateNode"]
+visible = false
+position = Vector2(56, -16)
+rotation = 0.18
+scale = Vector2(0.08, 0.08)
+modulate = Color(0.74, 0.90, 1, 0.74)
+texture = ExtResource("4")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(188, 612)
+z_index = 10
+script = ExtResource("2")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+enabled = true
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+limit_left = 0
+limit_top = 0
+limit_right = 1280
+limit_bottom = 720
+
+[node name="Bounds" type="Node2D" parent="."]
+
+[node name="LeftWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(-16, 360)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/LeftWall"]
+shape = SubResource("Rect_left")
+
+[node name="RightWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(1296, 360)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/RightWall"]
+shape = SubResource("Rect_right")
+
+[node name="TopWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(640, -16)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/TopWall"]
+shape = SubResource("Rect_top")
+
+[node name="BottomWall" type="StaticBody2D" parent="Bounds"]
+position = Vector2(640, 736)
+collision_layer = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bounds/BottomWall"]
+shape = SubResource("Rect_bottom")
+
+[node name="Atmosphere" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="Tint" type="ColorRect" parent="Atmosphere"]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.05, 0.10, 0.14, 0.28)
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="TopBar" type="Panel" parent="UI"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 620.0
+offset_bottom = 92.0
+
+[node name="AreaLabel" type="Label" parent="UI/TopBar"]
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 340.0
+offset_bottom = 34.0
+text = "深层设施前厅"
+
+[node name="ObjectiveLabel" type="Label" parent="UI/TopBar"]
+offset_left = 16.0
+offset_top = 38.0
+offset_right = 560.0
+offset_bottom = 66.0
+text = "当前目标：调查仍在运作的深层设施前厅"
+
+[node name="BottomBar" type="Panel" parent="UI"]
+offset_left = 24.0
+offset_top = 652.0
+offset_right = 890.0
+offset_bottom = 704.0
+
+[node name="HintLabel" type="Label" parent="UI/BottomBar"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 840.0
+offset_bottom = 40.0
+text = "靠近运作中的门禁后按 E 调查"
+
+[node name="ToastLabel" type="Label" parent="UI"]
+visible = false
+offset_left = 340.0
+offset_top = 118.0
+offset_right = 956.0
+offset_bottom = 154.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
+
+[node name="DialoguePanel" type="PanelContainer" parent="UI"]
+visible = false
+offset_left = 198.0
+offset_top = 468.0
+offset_right = 1086.0
+offset_bottom = 676.0
+
+[node name="Margin" type="MarginContainer" parent="UI/DialoguePanel"]
+offset_left = 14.0
+offset_top = 14.0
+offset_right = 874.0
+offset_bottom = 194.0
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="UI/DialoguePanel/Margin"]
+offset_right = 836.0
+offset_bottom = 156.0
+theme_override_constants/separation = 10
+
+[node name="SpeakerLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
+offset_right = 836.0
+offset_bottom = 26.0
+text = "深层设施前厅"
+
+[node name="BodyLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
+offset_top = 36.0
+offset_right = 836.0
+offset_bottom = 116.0
+autowrap_mode = 3
+text = "……"
+
+[node name="ContinueLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
+offset_top = 126.0
+offset_right = 836.0
+offset_bottom = 152.0
+horizontal_alignment = 2
+text = "按 E 继续"

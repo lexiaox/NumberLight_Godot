@@ -1,0 +1,5 @@
+[gd_resource type="Image" format="PNG" load_steps=2 id="1"]
+[sub_resource type="ImageData" id="1"]
+
+[resource]
+data = SubResource("1")

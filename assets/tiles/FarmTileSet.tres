@@ -1,0 +1,71 @@
+[gd_resource type="TileSet" load_steps=12 format=3]
+
+[ext_resource type="Texture2D" uid="uid://tile_grass" path="res://assets/tiles/grass.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://tile_grass_flower" path="res://assets/tiles/grass_flower.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://tile_dirt" path="res://assets/tiles/dirt.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://tile_tilled" path="res://assets/tiles/tilled_soil.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://tile_path" path="res://assets/tiles/path.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://tile_water" path="res://assets/tiles/water.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://tile_fence_h" path="res://assets/tiles/fence_h.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://tile_fence_v" path="res://assets/tiles/fence_v.png" id="8"]
+
+[sub_resource type="AtlasSource" id="AtlasSource_1"]
+texture = ExtResource("1")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 0
+0:0/0/custom_data_layer_0 = "grass"
+
+[sub_resource type="AtlasSource" id="AtlasSource_2"]
+texture = ExtResource("2")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 1
+0:0/0/custom_data_layer_0 = "grass_flower"
+
+[sub_resource type="AtlasSource" id="AtlasSource_3"]
+texture = ExtResource("3")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 2
+0:0/0/custom_data_layer_0 = "dirt"
+
+[sub_resource type="AtlasSource" id="AtlasSource_4"]
+texture = ExtResource("4")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 3
+0:0/0/custom_data_layer_0 = "tilled"
+
+[sub_resource type="AtlasSource" id="AtlasSource_5"]
+texture = ExtResource("5")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 4
+0:0/0/custom_data_layer_0 = "path"
+
+[sub_resource type="AtlasSource" id="AtlasSource_6"]
+texture = ExtResource("6")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 5
+0:0/0/custom_data_layer_0 = "water"
+
+[sub_resource type="AtlasSource" id="AtlasSource_7"]
+texture = ExtResource("7")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 6
+0:0/0/custom_data_layer_0 = "fence_h"
+
+[sub_resource type="AtlasSource" id="AtlasSource_8"]
+texture = ExtResource("8")
+region = Rect2i(0, 0, 32, 32)
+0:0/0 = 7
+0:0/0/custom_data_layer_0 = "fence_v"
+
+[resource]
+sources/0 = SubResource("AtlasSource_1")
+sources/1 = SubResource("AtlasSource_2")
+sources/2 = SubResource("AtlasSource_3")
+sources/3 = SubResource("AtlasSource_4")
+sources/4 = SubResource("AtlasSource_5")
+sources/5 = SubResource("AtlasSource_6")
+sources/6 = SubResource("AtlasSource_7")
+sources/7 = SubResource("AtlasSource_8")
+
+custom_data_layers/name = "TerrainType"
+custom_data_layers/type = 4
