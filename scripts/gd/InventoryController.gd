@@ -155,6 +155,15 @@ func get_selected_item() -> int:
 
 func get_selected_index() -> int: return _selected_index
 
+func contains_item(item_id: int) -> bool:
+    return item_id in _items
+
+func get_item_count(item_id: int) -> int:
+    for i in range(slot_count):
+        if _items[i] == item_id:
+            return _counts[i]
+    return 0
+
 func refresh_slot(i: int):
     if i < 0 or i >= slot_count: return
     var id = _items[i]

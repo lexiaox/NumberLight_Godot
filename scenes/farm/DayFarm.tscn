@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://8t7jtjobxc21"]
+﻿[gd_scene format=3 uid="uid://8t7jtjobxc21"]
 
 [ext_resource type="Script" path="res://scripts/gd/DayFarmManager.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/gd/FarmHUD.gd" id="3"]
@@ -21,9 +21,9 @@
 [ext_resource type="Texture2D" uid="uid://dghllqnqmmq4j" path="res://assets/sprites/character/father/主角父亲-正面.png" id="32_2tshv"]
 [ext_resource type="Texture2D" uid="uid://k3kgstv7ug2n" path="res://assets/sprites/character/sister/主角姐姐-正面.png" id="33_j3fdo"]
 [ext_resource type="Texture2D" path="res://assets/sprites/buildings/anomaly_boundary_stele.png" id="34"]
-[ext_resource type="Texture2D" uid="uid://dc323um7gs2rn" path="res://assets/sprites/crops/藤曼-初生.png" id="34_70nps"]
-[ext_resource type="Texture2D" uid="uid://ufgr7eci0f23" path="res://assets/sprites/crops/宝石花-常态.png" id="35_s0gty"]
-[ext_resource type="Texture2D" uid="uid://bfmkjs5um5gpv" path="res://assets/sprites/items/箱子-关闭.png" id="36"]
+[ext_resource type="Texture2D" uid="uid://dc323um7gs2rn" path="res://assets/sprites/crops/vine_seedling.png" id="34_70nps"]
+[ext_resource type="Texture2D" uid="uid://ufgr7eci0f23" path="res://assets/sprites/crops/gem_flower_normal.png" id="35_s0gty"]
+[ext_resource type="Texture2D" uid="uid://bfmkjs5um5gpv" path="res://assets/sprites/items/chest_closed.png" id="36"]
 [ext_resource type="Script" path="res://scripts/gd/ObstacleManager.gd" id="37"]
 [ext_resource type="Script" path="res://scripts/gd/DayNightCycle.gd" id="38"]
 [ext_resource type="Script" path="res://scripts/gd/InventoryController.gd" id="39"]
@@ -183,7 +183,7 @@ offset_left = 16.0
 offset_top = 8.0
 offset_right = 200.0
 offset_bottom = 40.0
-text = "第 1 天"
+text = "绗?1 澶?
 vertical_alignment = 1
 
 [node name="TimeLabel" type="Label" parent="UI/TopBar" unique_id=147473278]
@@ -192,9 +192,7 @@ offset_left = 540.0
 offset_top = 8.0
 offset_right = 740.0
 offset_bottom = 40.0
-text = "06:00 AM"
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "农田区域：未进入"`r`nhorizontal_alignment = 1`r`nvertical_alignment = 1
 
 [node name="ZoneLabel" type="Label" parent="UI/TopBar" unique_id=1925915800]
 layout_mode = 0
@@ -202,9 +200,7 @@ offset_left = 800.0
 offset_top = 8.0
 offset_right = 1060.0
 offset_bottom = 40.0
-text = "农田区域：未进入"
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "农田区域：未进入"`r`nhorizontal_alignment = 1`r`nvertical_alignment = 1
 
 [node name="ObjectiveLabel" type="Label" parent="UI/TopBar" unique_id=1353448746]
 layout_mode = 0
@@ -212,8 +208,7 @@ offset_left = 210.0
 offset_top = 8.0
 offset_right = 530.0
 offset_bottom = 40.0
-text = "当前目标：前往箱子"
-vertical_alignment = 1
+text = "当前目标：前往箱子"`r`nvertical_alignment = 1
 
 [node name="GoldLabel" type="Label" parent="UI/TopBar" unique_id=1255859809]
 layout_mode = 0
@@ -237,8 +232,7 @@ offset_left = 18.0
 offset_top = 8.0
 offset_right = 392.0
 offset_bottom = 28.0
-text = "当前道具：未选择"
-vertical_alignment = 1
+text = "当前目标：前往箱子"`r`nvertical_alignment = 1
 
 [node name="InteractionHintLabel" type="Label" parent="UI/BottomBar" unique_id=1272952784]
 layout_mode = 0
@@ -246,8 +240,7 @@ offset_left = 18.0
 offset_top = 28.0
 offset_right = 392.0
 offset_bottom = 48.0
-text = "提示：靠近目标后按 E 互动"
-vertical_alignment = 1
+text = "当前目标：前往箱子"`r`nvertical_alignment = 1
 
 [node name="Toolbar" type="HBoxContainer" parent="UI/BottomBar" unique_id=710538692]
 layout_mode = 0
@@ -298,9 +291,7 @@ offset_left = 410.0
 offset_top = 598.0
 offset_right = 872.0
 offset_bottom = 640.0
-text = "提示"
-horizontal_alignment = 1
-vertical_alignment = 1
+text = "农田区域：未进入"`r`nhorizontal_alignment = 1`r`nvertical_alignment = 1
 
 [node name="Rock" type="Sprite2D" parent="." unique_id=1370739648]
 position = Vector2(1255.0001, 263)
@@ -589,22 +580,23 @@ texture = ExtResource("25_yvywh")
 position = Vector2(1580, 26)
 texture = ExtResource("25_yvywh")
 
-[node name="主角父亲正面" type="Sprite2D" parent="." unique_id=801275951]
+[node name="涓昏鐖朵翰姝ｉ潰" type="Sprite2D" parent="." unique_id=801275951]
 position = Vector2(220, 288)
 scale = Vector2(0.33756346, 0.29545453)
 texture = ExtResource("32_2tshv")
 
-[node name="主角姐姐正面" type="Sprite2D" parent="." unique_id=601989812]
+[node name="涓昏濮愬姝ｉ潰" type="Sprite2D" parent="." unique_id=601989812]
 position = Vector2(971, 137)
 scale = Vector2(0.2892669, 0.2722457)
 texture = ExtResource("33_j3fdo")
 
-[node name="藤曼初生" type="Sprite2D" parent="." unique_id=320362438]
+[node name="钘ゆ浖鍒濈敓" type="Sprite2D" parent="." unique_id=320362438]
 position = Vector2(992, 750)
 scale = Vector2(0.09808624, 0.0909091)
 texture = ExtResource("34_70nps")
 
-[node name="宝石花常态" type="Sprite2D" parent="." unique_id=1427666524]
+[node name="瀹濈煶鑺卞父鎬? type="Sprite2D" parent="." unique_id=1427666524]
 position = Vector2(539, 1003.99994)
 scale = Vector2(0.29333332, 0.22523962)
 texture = ExtResource("35_s0gty")
+

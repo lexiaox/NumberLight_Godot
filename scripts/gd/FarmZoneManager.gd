@@ -83,6 +83,6 @@ func update_zone_label() -> void:
 	if not _zone_label:
 		return
 	if not _current_zone.is_empty():
-		_zone_label.text = "Zone: %s" % str(_current_zone.get("name", ""))
+		_zone_label.text = "农田区域：%s" % str(_current_zone.get("name", ""))
 	else:
-		_zone_label.text = "Zone: Outside Field"
+		_zone_label.text = "农田区域：未进入"

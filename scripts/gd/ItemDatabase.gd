@@ -16,14 +16,14 @@ const VINE_FRUIT := SEED_VINE
 enum ItemType { NONE, TOOL, SEED, DROP }
 
 static var _registry := {
-	HOE: {"id": HOE, "name": "Hoe", "icon": "res://assets/sprites/icons/icon_hoe.png", "type": ItemType.TOOL},
-	SCISSORS: {"id": SCISSORS, "name": "Scissors", "icon": "res://assets/sprites/icons/icon_scissors.png", "type": ItemType.TOOL},
-	TORCH: {"id": TORCH, "name": "Torch", "icon": "res://assets/sprites/icons/icon_torch.png", "type": ItemType.TOOL},
-	SEED_GEM: {"id": SEED_GEM, "name": "Gem Seed", "icon": "res://assets/sprites/icons/icon_seed_gem.png", "type": ItemType.SEED},
-	SEED_VINE: {"id": SEED_VINE, "name": "Vine Seed", "icon": "res://assets/sprites/icons/icon_seed_vine.png", "type": ItemType.SEED},
-	GEM: {"id": GEM, "name": "Gem Flower", "icon": "res://assets/sprites/icons/icon_gem.png", "type": ItemType.DROP},
-	WATERING_CAN_EMPTY: {"id": WATERING_CAN_EMPTY, "name": "Empty Can", "icon": "res://assets/sprites/icons/icon_watering_empty.png", "type": ItemType.TOOL},
-	WATERING_CAN_FULL: {"id": WATERING_CAN_FULL, "name": "Full Can", "icon": "res://assets/sprites/icons/icon_watering_full.png", "type": ItemType.TOOL}
+	HOE: {"id": HOE, "name": "锄头", "icon": "res://assets/sprites/icons/icon_hoe.png", "type": ItemType.TOOL},
+	SCISSORS: {"id": SCISSORS, "name": "剪刀", "icon": "res://assets/sprites/icons/icon_scissors.png", "type": ItemType.TOOL},
+	TORCH: {"id": TORCH, "name": "火把", "icon": "res://assets/sprites/icons/icon_torch.png", "type": ItemType.TOOL},
+	SEED_GEM: {"id": SEED_GEM, "name": "宝石花种子", "icon": "res://assets/sprites/icons/icon_seed_gem.png", "type": ItemType.SEED},
+	SEED_VINE: {"id": SEED_VINE, "name": "晨露藤种子", "icon": "res://assets/sprites/icons/icon_seed_vine.png", "type": ItemType.SEED},
+	GEM: {"id": GEM, "name": "宝石花", "icon": "res://assets/sprites/icons/icon_gem.png", "type": ItemType.DROP},
+	WATERING_CAN_EMPTY: {"id": WATERING_CAN_EMPTY, "name": "空水壶", "icon": "res://assets/sprites/icons/icon_watering_empty.png", "type": ItemType.TOOL},
+	WATERING_CAN_FULL: {"id": WATERING_CAN_FULL, "name": "满水壶", "icon": "res://assets/sprites/icons/icon_watering_full.png", "type": ItemType.TOOL}
 }
 
 static var _icon_cache := {}
