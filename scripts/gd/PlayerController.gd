@@ -70,7 +70,7 @@ func create_hand_item() -> void:
 	_hand_item = Sprite2D.new()
 	_hand_item.name = "HandItem"
 	_hand_item.centered = true
-	_hand_item.scale = Vector2(1.2, 1.2)
+	_hand_item.scale = Vector2(0.72, 0.72)
 	_hand_item.z_index = 11
 	_hand_item.visible = false
 	add_child(_hand_item)
@@ -153,16 +153,24 @@ func update_hand_item_position() -> void:
 	var ph: float = 432.0 * display_scale
 	match _current_facing:
 		Facing.DOWN:
-			_hand_item.position = Vector2(pw * 0.35, ph * 0.2)
+			_hand_item.position = Vector2(pw * 0.24, ph * 0.16)
+			_hand_item.rotation_degrees = 14.0
+			_hand_item.z_index = 11
 			_hand_item.flip_h = false
 		Facing.UP:
-			_hand_item.position = Vector2(pw * 0.35, -ph * 0.05)
+			_hand_item.position = Vector2(pw * 0.18, ph * 0.02)
+			_hand_item.rotation_degrees = -22.0
+			_hand_item.z_index = 3
 			_hand_item.flip_h = false
 		Facing.LEFT:
-			_hand_item.position = Vector2(-pw * 0.35, ph * 0.15)
+			_hand_item.position = Vector2(-pw * 0.28, ph * 0.10)
+			_hand_item.rotation_degrees = -8.0
+			_hand_item.z_index = 10
 			_hand_item.flip_h = true
 		Facing.RIGHT:
-			_hand_item.position = Vector2(pw * 0.35, ph * 0.15)
+			_hand_item.position = Vector2(pw * 0.28, ph * 0.10)
+			_hand_item.rotation_degrees = 8.0
+			_hand_item.z_index = 10
 			_hand_item.flip_h = false
 
 func get_foot_world_position() -> Vector2:

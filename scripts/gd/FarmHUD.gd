@@ -10,9 +10,9 @@ enum ToastKind { INFO, SUCCESS, WARNING }
 var _toast_timer: float = 0.0
 
 func _ready() -> void:
-	set_objective("当前目标：前往箱子")
+	set_objective("前往箱子")
 	set_selected_item_name("未选择")
-	set_interaction_hint("移动：WASD  交互：E  切换道具：左右方向键")
+	set_interaction_hint("移动：WASD  互动：E  切换道具：左右方向键")
 	if _toast_label:
 		_toast_label.visible = false
 
@@ -25,7 +25,7 @@ func _process(delta: float) -> void:
 
 func set_objective(text: String) -> void:
 	if _objective_label:
-		_objective_label.text = text
+		_objective_label.text = "当前目标：%s" % text
 
 func set_selected_item_name(text: String) -> void:
 	if _selected_item_label:
@@ -51,4 +51,3 @@ func show_toast(text: String, kind: int = ToastKind.INFO, duration: float = 2.0)
 			_toast_label.modulate = Color(1.0, 0.9, 0.72)
 		_:
 			_toast_label.modulate = Color(0.9, 0.96, 1.0)
-

@@ -340,7 +340,7 @@ func refresh_guide_text() -> void:
 	if _hud == null:
 		return
 	var text := _get_step_text(_step)
-	_hud.set_objective(text.objective)
+	_hud.set_objective(text.objective.replace("当前目标：", ""))
 	if _task_title_label:
 		_task_title_label.text = text.title
 	if _task_body_label:
