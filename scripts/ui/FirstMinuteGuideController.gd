@@ -19,7 +19,9 @@ enum GuideStep {
 	TALK_SISTER,
 	INSPECT_SIGNBOARD,
 	RETURN_FATHER,
-	FINALE
+	ENTER_ANOMALY,
+	REPORT_NORTHBANK,
+	FREE_ROAM
 }
 
 var _step: int = GuideStep.MOVE
@@ -60,8 +62,10 @@ func _ready() -> void:
 	_father_npc = _find_sprite_by_texture_path("character/father")
 	_sister_npc = _find_sprite_by_texture_path("character/sister")
 	_last_player_position = _player.global_position if _player else Vector2.ZERO
-	if GameState.anomaly_entry_unlocked:
-		_step = GuideStep.FINALE
+	if GameState.pending_anomaly_report and not GameState.reported_northbank_sluice:
+		_step = GuideStep.REPORT_NORTHBANK
+	elif GameState.anomaly_entry_unlocked:
+		_step = GuideStep.ENTER_ANOMALY
 	call_deferred("_initialize_ui")
 	call_deferred("_ensure_camera")
 
@@ -80,7 +84,7 @@ func is_dialogue_open() -> bool:
 	return _dialog_panel != null and _dialog_panel.visible
 
 func is_anomaly_entry_ready() -> bool:
-	return _step == GuideStep.FINALE and GameState.anomaly_entry_unlocked
+	return _step == GuideStep.ENTER_ANOMALY and GameState.anomaly_entry_unlocked
 
 func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> String:
 	match _step:
@@ -94,8 +98,10 @@ func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> Str
 			return "按 E 查看界碑" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口界碑"
 		GuideStep.RETURN_FATHER:
 			return "按 E 向父亲汇报" if _is_near(_father_npc, player_foot, 92.0) else "回去找父亲"
-		GuideStep.FINALE:
+		GuideStep.ENTER_ANOMALY:
 			return "按 E 进入异常区" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口"
+		GuideStep.REPORT_NORTHBANK:
+			return "按 E 向父亲汇报北岸线索" if _is_near(_father_npc, player_foot, 92.0) else "返回父亲身边汇报"
 		GuideStep.FILL_WATER:
 			if _is_near(_well_interact_point if _well_interact_point else _well, player_foot, 90.0):
 				return "切换空水壶后按 E 装水" if selected_item != ItemDatabase.WATERING_CAN_EMPTY else "按 E 装水"
@@ -135,7 +141,18 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 					"接下来你可以去异常区入口继续调查。"
 				], func():
 					GameState.anomaly_entry_unlocked = true
-					_set_step(GuideStep.FINALE)
+					_set_step(GuideStep.ENTER_ANOMALY)
+				)
+				return true
+		GuideStep.REPORT_NORTHBANK:
+			if _is_near(_father_npc, player_foot, 92.0):
+				_start_dialogue("父亲", [
+					"北岸导流槽的锚点果然还留着人为拆卸的痕迹。",
+					"这说明异常已经顺着北侧链路继续扩散了。你先休整一下，下一步我们再继续追查主井外环。"
+				], func():
+					GameState.pending_anomaly_report = false
+					GameState.reported_northbank_sluice = true
+					_set_step(GuideStep.FREE_ROAM)
 				)
 				return true
 	return false
@@ -279,7 +296,7 @@ func update_world_marker() -> void:
 	if _marker_label == null:
 		return
 	var target = _get_current_target()
-	if target == null:
+	if target == null or _step == GuideStep.FREE_ROAM:
 		_marker_label.visible = false
 		return
 	var camera: Camera2D = get_viewport().get_camera_2d()
@@ -295,11 +312,11 @@ func _get_current_target():
 			return _chest
 		GuideStep.FILL_WATER:
 			return _well_interact_point if _well_interact_point else _well
-		GuideStep.TALK_FATHER, GuideStep.RETURN_FATHER:
+		GuideStep.TALK_FATHER, GuideStep.RETURN_FATHER, GuideStep.REPORT_NORTHBANK:
 			return _father_npc
 		GuideStep.TALK_SISTER:
 			return _sister_npc
-		GuideStep.INSPECT_SIGNBOARD, GuideStep.FINALE:
+		GuideStep.INSPECT_SIGNBOARD, GuideStep.ENTER_ANOMALY:
 			return _signboard
 	return null
 
@@ -335,8 +352,12 @@ func _get_step_text(step: int) -> Dictionary:
 			return {"title": "第十四步", "body": "去异常区入口界碑查看调查路线。", "objective": "当前目标：查看异常区入口"}
 		GuideStep.RETURN_FATHER:
 			return {"title": "第十五步", "body": "把界碑上的信息告诉父亲。", "objective": "当前目标：返回父亲身边汇报"}
-		GuideStep.FINALE:
+		GuideStep.ENTER_ANOMALY:
 			return {"title": "异常调查", "body": "农场准备完成，可以前往异常区继续推进主线。", "objective": "当前目标：进入异常区"}
+		GuideStep.REPORT_NORTHBANK:
+			return {"title": "阶段汇报", "body": "你已带回北岸导流槽的调查结果，先去向父亲汇报。", "objective": "当前目标：向父亲汇报北岸线索"}
+		GuideStep.FREE_ROAM:
+			return {"title": "第一章完成", "body": "北岸导流槽章节已收口，可以自由活动或准备下一段主线。", "objective": "当前目标：自由探索"}
 	return {"title": "", "body": "", "objective": ""}
 
 func _set_step(step: int) -> void:
@@ -344,11 +365,11 @@ func _set_step(step: int) -> void:
 		return
 	_step = step
 	refresh_guide_text()
-	var text = _get_step_text(step)
-	if _hud and step != GuideStep.FINALE:
+	var text := _get_step_text(step)
+	if _hud and step != GuideStep.FREE_ROAM:
 		_hud.show_toast("下一目标：%s" % text.objective.replace("当前目标：", ""), 0, 2.1)
-	elif _hud and step == GuideStep.FINALE:
-		_hud.show_toast("主线更新：前往异常区。", 1, 2.2)
+	elif _hud:
+		_hud.show_toast("第一章完成：北岸导流槽已汇报。", 1, 2.2)
 
 func _find_any_mature_crop():
 	for crop in _crop_system._crops:

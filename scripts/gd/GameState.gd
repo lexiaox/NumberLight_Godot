@@ -2,9 +2,15 @@ class_name GameState
 extends Node
 
 static var is_modal_ui_open: bool = false
+
 static var anomaly_entry_unlocked: bool = false
 static var investigated_anomaly_core: bool = false
 static var viewed_maintenance_clue: bool = false
+static var first_subarea_unlocked: bool = false
+static var investigated_northbank_sluice: bool = false
+static var pending_anomaly_report: bool = false
+static var reported_northbank_sluice: bool = false
+
 static var pending_farm_spawn: String = ""
 static var pending_notice: String = ""
 
@@ -30,4 +36,3 @@ static func take_pending_notice() -> String:
 	var text := pending_notice
 	pending_notice = ""
 	return text
-

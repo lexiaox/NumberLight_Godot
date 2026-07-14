@@ -3,10 +3,12 @@ extends Node2D
 const GameState = preload("res://scripts/gd/GameState.gd")
 
 const FARM_SCENE_PATH := "res://scenes/farm/DayFarm.tscn"
+const NORTH_BANK_SCENE_PATH := "res://scenes/anomaly/NorthBankTrail.tscn"
 
 enum Stage {
 	INVESTIGATE_CORE,
 	CHECK_CLUE,
+	ENTER_SUBAREA,
 	RETURN_FARM
 }
 
@@ -15,6 +17,7 @@ var _player: CharacterBody2D
 var _core: Node2D
 var _clue: Node2D
 var _sub_area_entrance: Node2D
+var _sub_area_interact_point: Node2D
 var _exit_marker: Sprite2D
 var _objective_label: Label
 var _hint_label: Label
@@ -23,6 +26,7 @@ var _world_marker_label: Label
 var _dialogue_panel: PanelContainer
 var _speaker_label: Label
 var _body_label: Label
+var _entry_label: Label
 var _dialog_lines: Array[String] = []
 var _dialog_callback: Callable = Callable()
 
@@ -31,6 +35,7 @@ func _ready() -> void:
 	_core = get_node_or_null("Decorations/AnomalyCore")
 	_clue = get_node_or_null("Decorations/MaintenanceClue")
 	_sub_area_entrance = get_node_or_null("Decorations/SubAreaEntrance")
+	_sub_area_interact_point = get_node_or_null("Decorations/SubAreaEntrance/InteractPoint")
 	_exit_marker = get_node_or_null("Decorations/ExitMarker")
 	_objective_label = get_node_or_null("UI/TopBar/ObjectiveLabel")
 	_hint_label = get_node_or_null("UI/BottomBar/HintLabel")
@@ -39,14 +44,14 @@ func _ready() -> void:
 	_dialogue_panel = get_node_or_null("UI/DialoguePanel")
 	_speaker_label = get_node_or_null("UI/DialoguePanel/Margin/VBox/SpeakerLabel")
 	_body_label = get_node_or_null("UI/DialoguePanel/Margin/VBox/BodyLabel")
+	_entry_label = get_node_or_null("Decorations/SubAreaEntrance/EntryLabel")
 	if _dialogue_panel:
 		_dialogue_panel.visible = false
 	if _toast_label:
 		_toast_label.visible = false
-	if GameState.viewed_maintenance_clue:
-		_stage = Stage.RETURN_FARM
-	elif GameState.investigated_anomaly_core:
-		_stage = Stage.CHECK_CLUE
+	if _entry_label:
+		_entry_label.text = "北岸导流槽"
+	refresh_stage()
 	update_labels()
 
 func _process(_delta: float) -> void:
@@ -61,6 +66,18 @@ func _process(_delta: float) -> void:
 		return
 	handle_interaction()
 
+func refresh_stage() -> void:
+	if GameState.investigated_northbank_sluice:
+		_stage = Stage.RETURN_FARM
+	elif GameState.first_subarea_unlocked:
+		_stage = Stage.ENTER_SUBAREA
+	elif GameState.viewed_maintenance_clue:
+		_stage = Stage.ENTER_SUBAREA
+	elif GameState.investigated_anomaly_core:
+		_stage = Stage.CHECK_CLUE
+	else:
+		_stage = Stage.INVESTIGATE_CORE
+
 func is_dialogue_open() -> bool:
 	return _dialogue_panel != null and _dialogue_panel.visible
 
@@ -72,7 +89,7 @@ func handle_interaction() -> void:
 	if is_near(_clue, player_point, 100.0):
 		inspect_clue()
 		return
-	if is_near(_sub_area_entrance, player_point, 120.0):
+	if is_near(get_subarea_target(), player_point, 120.0):
 		inspect_sub_area_entrance()
 		return
 	if is_near(_exit_marker, player_point, 96.0):
@@ -83,10 +100,10 @@ func inspect_core() -> void:
 		show_toast("光棱核心仍在不稳定地震动。", false)
 		return
 	GameState.investigated_anomaly_core = true
-	_stage = Stage.CHECK_CLUE
+	refresh_stage()
 	start_dialogue("异常核心", [
 		"这枚光棱核心的能量流动异常，像是被强行改写过。",
-		"附近应该还留有维护记录，先去查看旁边的线索。"
+		"附近应该还留有维护记录，先去查看左上方的线索。"
 	], Callable())
 	show_toast("已记录核心异常。", true)
 	update_labels()
@@ -99,23 +116,34 @@ func inspect_clue() -> void:
 		show_toast("这份维护线索已经看过了。", false)
 		return
 	GameState.viewed_maintenance_clue = true
-	GameState.anomaly_entry_unlocked = true
-	_stage = Stage.RETURN_FARM
+	GameState.first_subarea_unlocked = true
+	refresh_stage()
 	start_dialogue("维护记录", [
-		"记录板写着：北侧链路与深层设施之间出现了协议偏移。",
-		"先把这条线索带回农场，和父亲、姐姐汇报情况。"
+		"记录板写着：北侧链路出现了明显的能量偏移，异常痕迹沿北岸导流槽继续向前延伸。",
+		"先从右上方入口进入北岸副区，把那里的锚点线索查清楚。"
 	], Callable())
-	show_toast("获得新线索：返回农场汇报。", true)
+	show_toast("新目标：进入北岸导流槽副区。", true)
 	update_labels()
 
 func inspect_sub_area_entrance() -> void:
-	if not GameState.viewed_maintenance_clue:
-		show_toast("深层入口尚未准备好，先完成当前调查。", false)
+	if not GameState.first_subarea_unlocked:
+		show_toast("入口尚未准备好，先完成当前调查。", false)
 		return
-	show_toast("网页版下一步会从这里继续进入深层副区。", false, 2.2)
+	if GameState.investigated_northbank_sluice:
+		show_toast("北岸导流槽已经调查完成，先返回农场汇报。", false)
+		return
+	start_dialogue("北岸导流槽入口", [
+		"这条入口通往北岸导流槽，维护记录提到的能量偏移就是从这里继续延伸的。",
+		"进去调查锚点痕迹，确认光棱碎片的后续去向。"
+	], func():
+		get_tree().change_scene_to_file(NORTH_BANK_SCENE_PATH)
+	)
 
 func return_to_farm() -> void:
-	GameState.queue_farm_return("anomaly_return", "你已带着异常区线索返回农场。")
+	if not GameState.investigated_northbank_sluice:
+		show_toast("先完成北岸导流槽调查，再返回农场。", false)
+		return
+	GameState.queue_farm_return("anomaly_return", "你已完成北岸导流槽调查，返回农场汇报。")
 	get_tree().change_scene_to_file(FARM_SCENE_PATH)
 
 func update_labels() -> void:
@@ -124,6 +152,8 @@ func update_labels() -> void:
 			set_objective("当前目标：调查异常核心")
 		Stage.CHECK_CLUE:
 			set_objective("当前目标：查看维护线索")
+		Stage.ENTER_SUBAREA:
+			set_objective("当前目标：进入北岸导流槽")
 		Stage.RETURN_FARM:
 			set_objective("当前目标：返回农场汇报")
 
@@ -138,8 +168,8 @@ func update_hint() -> void:
 	if is_near(_clue, player_point, 100.0):
 		set_hint("按 E 查看维护线索")
 		return
-	if is_near(_sub_area_entrance, player_point, 120.0):
-		set_hint("按 E 查看深层入口")
+	if is_near(get_subarea_target(), player_point, 120.0):
+		set_hint("按 E 进入北岸导流槽")
 		return
 	if is_near(_exit_marker, player_point, 96.0):
 		set_hint("按 E 返回农场")
@@ -148,7 +178,9 @@ func update_hint() -> void:
 		Stage.INVESTIGATE_CORE:
 			set_hint("前往中央平台调查光棱核心")
 		Stage.CHECK_CLUE:
-			set_hint("去左上侧查看维护记录和工具残片")
+			set_hint("去左上侧查看维护记录")
+		Stage.ENTER_SUBAREA:
+			set_hint("前往右上方入口，进入北岸导流槽")
 		Stage.RETURN_FARM:
 			set_hint("沿原路返回农场汇报")
 
@@ -161,6 +193,8 @@ func update_world_marker() -> void:
 			target = _core
 		Stage.CHECK_CLUE:
 			target = _clue
+		Stage.ENTER_SUBAREA:
+			target = get_subarea_target()
 		Stage.RETURN_FARM:
 			target = _exit_marker
 	if target == null:
@@ -173,6 +207,9 @@ func update_world_marker() -> void:
 	_world_marker_label.position = viewport_position - Vector2(90, 28)
 	_world_marker_label.text = "目标"
 	_world_marker_label.visible = true
+
+func get_subarea_target() -> Node2D:
+	return _sub_area_interact_point if _sub_area_interact_point != null else _sub_area_entrance
 
 func start_dialogue(speaker: String, lines: Array[String], on_complete: Callable) -> void:
 	if _dialogue_panel == null or _speaker_label == null or _body_label == null:
