@@ -5,12 +5,14 @@ const GameState = preload("res://scripts/gd/GameState.gd")
 const FARM_SCENE_PATH := "res://scenes/farm/DayFarm.tscn"
 const NORTH_BANK_SCENE_PATH := "res://scenes/anomaly/NorthBankTrail.tscn"
 const MAIN_WELL_SCENE_PATH := "res://scenes/anomaly/MainWellOuterRing.tscn"
+const SEALED_CONDUIT_SCENE_PATH := "res://scenes/anomaly/SealedConduit.tscn"
 
 enum Stage {
 	INVESTIGATE_CORE,
 	CHECK_CLUE,
 	ENTER_NORTHBANK,
 	ENTER_MAIN_WELL,
+	ENTER_SEALED_CONDUIT,
 	RETURN_FARM,
 	COMPLETE
 }
@@ -68,12 +70,18 @@ func _process(_delta: float) -> void:
 	handle_interaction()
 
 func refresh_stage() -> void:
-	if GameState.reported_main_well_outer_ring:
+	if GameState.reported_sealed_conduit:
 		_stage = Stage.COMPLETE
+	elif GameState.investigated_sealed_conduit:
+		_stage = Stage.RETURN_FARM
+	elif GameState.third_subarea_unlocked:
+		_stage = Stage.ENTER_SEALED_CONDUIT
 	elif GameState.investigated_main_well_outer_ring:
 		_stage = Stage.RETURN_FARM
 	elif GameState.second_subarea_unlocked:
 		_stage = Stage.ENTER_MAIN_WELL
+	elif GameState.investigated_northbank_sluice:
+		_stage = Stage.RETURN_FARM
 	elif GameState.first_subarea_unlocked:
 		_stage = Stage.ENTER_NORTHBANK
 	elif GameState.viewed_maintenance_clue:
@@ -91,10 +99,10 @@ func handle_interaction() -> void:
 	if _stage == Stage.INVESTIGATE_CORE and is_near(_core, player_point, 110.0):
 		inspect_core()
 		return
-	if (_stage == Stage.CHECK_CLUE or _stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL) and is_near(_clue, player_point, 100.0):
+	if (_stage == Stage.CHECK_CLUE or _stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(_clue, player_point, 100.0):
 		inspect_clue()
 		return
-	if (_stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL) and is_near(get_subarea_target(), player_point, 120.0):
+	if (_stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(get_subarea_target(), player_point, 120.0):
 		inspect_sub_area_entrance()
 		return
 	if is_near(_exit_marker, player_point, 96.0):
@@ -146,6 +154,13 @@ func inspect_sub_area_entrance() -> void:
 			], func():
 				get_tree().change_scene_to_file(MAIN_WELL_SCENE_PATH)
 			)
+		Stage.ENTER_SEALED_CONDUIT:
+			start_dialogue("封闭线路入口", [
+				"这一段封闭线路原本负责阻断侧向能量回流。",
+				"进去确认封锁结构是否已经被异常渗透。"
+			], func():
+				get_tree().change_scene_to_file(SEALED_CONDUIT_SCENE_PATH)
+			)
 
 func return_to_farm() -> void:
 	match _stage:
@@ -170,6 +185,8 @@ func update_labels() -> void:
 			set_objective("当前目标：进入北岸导流槽")
 		Stage.ENTER_MAIN_WELL:
 			set_objective("当前目标：进入主井外环")
+		Stage.ENTER_SEALED_CONDUIT:
+			set_objective("当前目标：进入封闭线路")
 		Stage.RETURN_FARM:
 			set_objective("当前目标：返回农场汇报")
 		Stage.COMPLETE:
@@ -183,10 +200,10 @@ func update_hint() -> void:
 	if _stage == Stage.INVESTIGATE_CORE and is_near(_core, player_point, 110.0):
 		set_hint("按 E 调查光棱核心")
 		return
-	if (_stage == Stage.CHECK_CLUE or _stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL) and is_near(_clue, player_point, 100.0):
+	if (_stage == Stage.CHECK_CLUE or _stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(_clue, player_point, 100.0):
 		set_hint("按 E 查看维护线索")
 		return
-	if (_stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL) and is_near(get_subarea_target(), player_point, 120.0):
+	if (_stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(get_subarea_target(), player_point, 120.0):
 		set_hint("按 E 进入%s" % _get_entry_name())
 		return
 	if (_stage == Stage.RETURN_FARM or _stage == Stage.COMPLETE) and is_near(_exit_marker, player_point, 96.0):
@@ -201,6 +218,8 @@ func update_hint() -> void:
 			set_hint("前往右上入口，进入北岸导流槽")
 		Stage.ENTER_MAIN_WELL:
 			set_hint("前往右上入口，进入主井外环")
+		Stage.ENTER_SEALED_CONDUIT:
+			set_hint("前往右上入口，进入封闭线路")
 		Stage.RETURN_FARM:
 			set_hint("调查完成，沿原路返回农场")
 		Stage.COMPLETE:
@@ -215,7 +234,7 @@ func update_world_marker() -> void:
 			target = _core
 		Stage.CHECK_CLUE:
 			target = _clue
-		Stage.ENTER_NORTHBANK, Stage.ENTER_MAIN_WELL:
+		Stage.ENTER_NORTHBANK, Stage.ENTER_MAIN_WELL, Stage.ENTER_SEALED_CONDUIT:
 			target = get_subarea_target()
 		Stage.RETURN_FARM, Stage.COMPLETE:
 			target = _exit_marker
@@ -234,9 +253,13 @@ func get_subarea_target() -> Node2D:
 	return _sub_area_interact_point if _sub_area_interact_point != null else _sub_area_entrance
 
 func _get_entry_name() -> String:
-	if _stage == Stage.ENTER_MAIN_WELL:
-		return "主井外环"
-	return "北岸导流槽"
+	match _stage:
+		Stage.ENTER_MAIN_WELL:
+			return "主井外环"
+		Stage.ENTER_SEALED_CONDUIT:
+			return "封闭线路"
+		_:
+			return "北岸导流槽"
 
 func start_dialogue(speaker: String, lines: Array[String], on_complete: Callable) -> void:
 	if _dialogue_panel == null or _speaker_label == null or _body_label == null:
