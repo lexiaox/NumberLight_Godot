@@ -6,6 +6,7 @@ const FARM_SCENE_PATH := "res://scenes/farm/DayFarm.tscn"
 const NORTH_BANK_SCENE_PATH := "res://scenes/anomaly/NorthBankTrail.tscn"
 const MAIN_WELL_SCENE_PATH := "res://scenes/anomaly/MainWellOuterRing.tscn"
 const SEALED_CONDUIT_SCENE_PATH := "res://scenes/anomaly/SealedConduit.tscn"
+const PROTOCOL_JUNCTION_SCENE_PATH := "res://scenes/anomaly/ProtocolJunction.tscn"
 
 enum Stage {
 	INVESTIGATE_CORE,
@@ -13,6 +14,7 @@ enum Stage {
 	ENTER_NORTHBANK,
 	ENTER_MAIN_WELL,
 	ENTER_SEALED_CONDUIT,
+	ENTER_PROTOCOL_JUNCTION,
 	RETURN_FARM,
 	COMPLETE
 }
@@ -70,8 +72,12 @@ func _process(_delta: float) -> void:
 	handle_interaction()
 
 func refresh_stage() -> void:
-	if GameState.reported_sealed_conduit:
+	if GameState.reported_protocol_junction:
 		_stage = Stage.COMPLETE
+	elif GameState.investigated_protocol_junction:
+		_stage = Stage.RETURN_FARM
+	elif GameState.fourth_subarea_unlocked:
+		_stage = Stage.ENTER_PROTOCOL_JUNCTION
 	elif GameState.investigated_sealed_conduit:
 		_stage = Stage.RETURN_FARM
 	elif GameState.third_subarea_unlocked:
@@ -99,10 +105,10 @@ func handle_interaction() -> void:
 	if _stage == Stage.INVESTIGATE_CORE and is_near(_core, player_point, 110.0):
 		inspect_core()
 		return
-	if (_stage == Stage.CHECK_CLUE or _stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(_clue, player_point, 100.0):
+	if (_stage == Stage.CHECK_CLUE or _is_any_entry_stage(_stage)) and is_near(_clue, player_point, 100.0):
 		inspect_clue()
 		return
-	if (_stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(get_subarea_target(), player_point, 120.0):
+	if _is_any_entry_stage(_stage) and is_near(get_subarea_target(), player_point, 120.0):
 		inspect_sub_area_entrance()
 		return
 	if is_near(_exit_marker, player_point, 96.0):
@@ -116,7 +122,7 @@ func inspect_core() -> void:
 	refresh_stage()
 	start_dialogue("异常核心", [
 		"这枚光棱核心的能量流动异常，像是被强行改写过。",
-		"附近应该还留有维护记录，先去查看左上方的线索。"
+		"附近应该还留着维护记录，先去查看左上方的线索。"
 	], Callable())
 	show_toast("已记录核心异常。", true)
 	update_labels()
@@ -161,6 +167,13 @@ func inspect_sub_area_entrance() -> void:
 			], func():
 				get_tree().change_scene_to_file(SEALED_CONDUIT_SCENE_PATH)
 			)
+		Stage.ENTER_PROTOCOL_JUNCTION:
+			start_dialogue("协议汇流节点入口", [
+				"更深处的协议汇流节点还在持续放大异常回响。",
+				"进去确认异常是否已经接上深层设施的主交换位。"
+			], func():
+				get_tree().change_scene_to_file(PROTOCOL_JUNCTION_SCENE_PATH)
+			)
 
 func return_to_farm() -> void:
 	match _stage:
@@ -187,6 +200,8 @@ func update_labels() -> void:
 			set_objective("当前目标：进入主井外环")
 		Stage.ENTER_SEALED_CONDUIT:
 			set_objective("当前目标：进入封闭线路")
+		Stage.ENTER_PROTOCOL_JUNCTION:
+			set_objective("当前目标：进入协议汇流节点")
 		Stage.RETURN_FARM:
 			set_objective("当前目标：返回农场汇报")
 		Stage.COMPLETE:
@@ -200,10 +215,10 @@ func update_hint() -> void:
 	if _stage == Stage.INVESTIGATE_CORE and is_near(_core, player_point, 110.0):
 		set_hint("按 E 调查光棱核心")
 		return
-	if (_stage == Stage.CHECK_CLUE or _stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(_clue, player_point, 100.0):
+	if (_stage == Stage.CHECK_CLUE or _is_any_entry_stage(_stage)) and is_near(_clue, player_point, 100.0):
 		set_hint("按 E 查看维护线索")
 		return
-	if (_stage == Stage.ENTER_NORTHBANK or _stage == Stage.ENTER_MAIN_WELL or _stage == Stage.ENTER_SEALED_CONDUIT) and is_near(get_subarea_target(), player_point, 120.0):
+	if _is_any_entry_stage(_stage) and is_near(get_subarea_target(), player_point, 120.0):
 		set_hint("按 E 进入%s" % _get_entry_name())
 		return
 	if (_stage == Stage.RETURN_FARM or _stage == Stage.COMPLETE) and is_near(_exit_marker, player_point, 96.0):
@@ -220,6 +235,8 @@ func update_hint() -> void:
 			set_hint("前往右上入口，进入主井外环")
 		Stage.ENTER_SEALED_CONDUIT:
 			set_hint("前往右上入口，进入封闭线路")
+		Stage.ENTER_PROTOCOL_JUNCTION:
+			set_hint("前往右上入口，进入协议汇流节点")
 		Stage.RETURN_FARM:
 			set_hint("调查完成，沿原路返回农场")
 		Stage.COMPLETE:
@@ -234,7 +251,7 @@ func update_world_marker() -> void:
 			target = _core
 		Stage.CHECK_CLUE:
 			target = _clue
-		Stage.ENTER_NORTHBANK, Stage.ENTER_MAIN_WELL, Stage.ENTER_SEALED_CONDUIT:
+		Stage.ENTER_NORTHBANK, Stage.ENTER_MAIN_WELL, Stage.ENTER_SEALED_CONDUIT, Stage.ENTER_PROTOCOL_JUNCTION:
 			target = get_subarea_target()
 		Stage.RETURN_FARM, Stage.COMPLETE:
 			target = _exit_marker
@@ -258,8 +275,13 @@ func _get_entry_name() -> String:
 			return "主井外环"
 		Stage.ENTER_SEALED_CONDUIT:
 			return "封闭线路"
+		Stage.ENTER_PROTOCOL_JUNCTION:
+			return "协议汇流节点"
 		_:
 			return "北岸导流槽"
+
+func _is_any_entry_stage(stage: int) -> bool:
+	return stage == Stage.ENTER_NORTHBANK or stage == Stage.ENTER_MAIN_WELL or stage == Stage.ENTER_SEALED_CONDUIT or stage == Stage.ENTER_PROTOCOL_JUNCTION
 
 func start_dialogue(speaker: String, lines: Array[String], on_complete: Callable) -> void:
 	if _dialogue_panel == null or _speaker_label == null or _body_label == null:

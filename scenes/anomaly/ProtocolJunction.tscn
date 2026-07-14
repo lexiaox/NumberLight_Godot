@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/anomaly/ProtocolJunctionController.cs" id="1"]
-[ext_resource type="Script" path="res://scripts/anomaly/AnomalyPlayerController.cs" id="2"]
+[ext_resource type="Script" path="res://scripts/anomaly/ProtocolJunctionController.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/anomaly/AnomalyPlayerController.gd" id="2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/anomaly/structures/protocol_junction_node.png" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/anomaly/structures/deep_gate_marker.png" id="4"]
 
@@ -149,7 +149,7 @@ offset_left = 16.0
 offset_top = 38.0
 offset_right = 590.0
 offset_bottom = 66.0
-text = "当前目标：调查深层门禁的协议汇流节点"
+text = "当前目标：调查协议汇流节点"
 
 [node name="BottomBar" type="Panel" parent="UI"]
 offset_left = 24.0
@@ -205,7 +205,7 @@ offset_top = 36.0
 offset_right = 836.0
 offset_bottom = 116.0
 autowrap_mode = 3
-text = "……"
+text = "..."
 
 [node name="ContinueLabel" type="Label" parent="UI/DialoguePanel/Margin/VBox"]
 offset_top = 126.0

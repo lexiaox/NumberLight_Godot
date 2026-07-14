@@ -23,6 +23,7 @@ enum GuideStep {
 	REPORT_NORTHBANK,
 	REPORT_MAIN_WELL,
 	REPORT_SEALED_CONDUIT,
+	REPORT_PROTOCOL_JUNCTION,
 	FREE_ROAM
 }
 
@@ -65,7 +66,9 @@ func _ready() -> void:
 	_sister_npc = _find_sprite_by_texture_path("character/sister")
 	_last_player_position = _player.global_position if _player else Vector2.ZERO
 
-	if GameState.pending_sealed_conduit_report and not GameState.reported_sealed_conduit:
+	if GameState.pending_protocol_junction_report and not GameState.reported_protocol_junction:
+		_step = GuideStep.REPORT_PROTOCOL_JUNCTION
+	elif GameState.pending_sealed_conduit_report and not GameState.reported_sealed_conduit:
 		_step = GuideStep.REPORT_SEALED_CONDUIT
 	elif GameState.pending_main_well_report and not GameState.reported_main_well_outer_ring:
 		_step = GuideStep.REPORT_MAIN_WELL
@@ -97,13 +100,13 @@ func is_anomaly_entry_ready() -> bool:
 func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> String:
 	match _step:
 		GuideStep.OPEN_CHEST, GuideStep.TAKE_ITEMS:
-			return "按 E 打开箱子并取出工具" if _is_near(_chest, player_foot, 92.0) else "前往箱子"
+			return "按 E 打开箱子并取出物品" if _is_near(_chest, player_foot, 92.0) else "前往箱子"
 		GuideStep.TALK_FATHER:
 			return "按 E 与父亲交谈" if _is_near(_father_npc, player_foot, 92.0) else "前往父亲身边"
 		GuideStep.TALK_SISTER:
 			return "按 E 与姐姐交谈" if _is_near(_sister_npc, player_foot, 92.0) else "前往姐姐身边"
 		GuideStep.INSPECT_SIGNBOARD:
-			return "按 E 查看界碑" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口界碑"
+			return "按 E 查看界碑" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口"
 		GuideStep.RETURN_FATHER:
 			return "按 E 向父亲汇报" if _is_near(_father_npc, player_foot, 92.0) else "回去找父亲"
 		GuideStep.ENTER_ANOMALY:
@@ -114,6 +117,8 @@ func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> Str
 			return "按 E 向父亲汇报主井外环线索" if _is_near(_father_npc, player_foot, 92.0) else "返回父亲身边汇报"
 		GuideStep.REPORT_SEALED_CONDUIT:
 			return "按 E 向父亲汇报封闭线路线索" if _is_near(_father_npc, player_foot, 92.0) else "返回父亲身边汇报"
+		GuideStep.REPORT_PROTOCOL_JUNCTION:
+			return "按 E 向父亲汇报协议汇流节点线索" if _is_near(_father_npc, player_foot, 92.0) else "返回父亲身边汇报"
 		GuideStep.FILL_WATER:
 			if _is_near(_well_interact_point if _well_interact_point else _well, player_foot, 90.0):
 				return "切换空水壶后按 E 装水" if selected_item != ItemDatabase.WATERING_CAN_EMPTY else "按 E 装水"
@@ -126,12 +131,13 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 	if is_dialogue_open():
 		advance_dialogue()
 		return true
+
 	match _step:
 		GuideStep.TALK_FATHER:
 			if _is_near(_father_npc, player_foot, 92.0):
 				_start_dialogue("父亲", [
 					"你已经把第一株作物照料好了。",
-					"继续和姐姐聊聊，她会告诉你农场最近的异常。"
+					"继续去和姐姐聊聊，她会告诉你农场最近的异常。"
 				], func(): _set_step(GuideStep.TALK_SISTER))
 				return true
 		GuideStep.TALK_SISTER:
@@ -150,7 +156,7 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 			if _is_near(_father_npc, player_foot, 92.0):
 				_start_dialogue("父亲", [
 					"很好，农场这边的准备已经完成。",
-					"接下来你可以去异常区入口继续调查。"
+					"接下来你可以去异常区入口，继续推进调查。"
 				], func():
 					GameState.anomaly_entry_unlocked = true
 					_set_step(GuideStep.ENTER_ANOMALY)
@@ -160,7 +166,7 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 			if _is_near(_father_npc, player_foot, 92.0):
 				_start_dialogue("父亲", [
 					"北岸导流槽的锚点果然留着人为拆卸的痕迹。",
-					"下一步去主井外环，那里应该能接上更深的异常链路。"
+					"下一步去主井外环，那里应该还能接上更深的异常链路。"
 				], func():
 					GameState.pending_anomaly_report = false
 					GameState.reported_northbank_sluice = true
@@ -184,13 +190,26 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 			if _is_near(_father_npc, player_foot, 92.0):
 				_start_dialogue("父亲", [
 					"封闭线路也出现了异常渗透，说明这套旧设施的外围封锁已经开始失效。",
-					"这一章先收口到这里，后面我们再继续查更深层的协议节点。"
+					"继续深入吧，去协议汇流节点确认异常是不是已经接管了更核心的协议通道。"
 				], func():
 					GameState.pending_sealed_conduit_report = false
 					GameState.reported_sealed_conduit = true
+					GameState.fourth_subarea_unlocked = true
+					_set_step(GuideStep.ENTER_ANOMALY)
+				)
+				return true
+		GuideStep.REPORT_PROTOCOL_JUNCTION:
+			if _is_near(_father_npc, player_foot, 92.0):
+				_start_dialogue("父亲", [
+					"协议汇流节点也被异常接触到了，这说明它已经摸到了深层设施的主交换位。",
+					"这一章先收到这里。接下来我们要围绕更深层的控制设施做准备。"
+				], func():
+					GameState.pending_protocol_junction_report = false
+					GameState.reported_protocol_junction = true
 					_set_step(GuideStep.FREE_ROAM)
 				)
 				return true
+
 	return false
 
 func _initialize_ui() -> void:
@@ -349,7 +368,7 @@ func _get_current_target():
 			return _chest
 		GuideStep.FILL_WATER:
 			return _well_interact_point if _well_interact_point else _well
-		GuideStep.TALK_FATHER, GuideStep.RETURN_FATHER, GuideStep.REPORT_NORTHBANK, GuideStep.REPORT_MAIN_WELL, GuideStep.REPORT_SEALED_CONDUIT:
+		GuideStep.TALK_FATHER, GuideStep.RETURN_FATHER, GuideStep.REPORT_NORTHBANK, GuideStep.REPORT_MAIN_WELL, GuideStep.REPORT_SEALED_CONDUIT, GuideStep.REPORT_PROTOCOL_JUNCTION:
 			return _father_npc
 		GuideStep.TALK_SISTER:
 			return _sister_npc
@@ -390,6 +409,8 @@ func _get_step_text(step: int) -> Dictionary:
 		GuideStep.RETURN_FATHER:
 			return {"title": "第十五步", "body": "把界碑上的信息告诉父亲。", "objective": "当前目标：返回父亲身边汇报"}
 		GuideStep.ENTER_ANOMALY:
+			if GameState.fourth_subarea_unlocked and not GameState.reported_protocol_junction:
+				return {"title": "第四章推进", "body": "封闭线路线索已经汇报完成，重新进入异常区，前往协议汇流节点。", "objective": "当前目标：进入异常区调查协议汇流节点"}
 			if GameState.third_subarea_unlocked and not GameState.reported_sealed_conduit:
 				return {"title": "第三章推进", "body": "主井外环线索已经汇报完成，重新进入异常区，前往封闭线路。", "objective": "当前目标：进入异常区调查封闭线路"}
 			if GameState.second_subarea_unlocked and not GameState.reported_main_well_outer_ring:
@@ -401,8 +422,10 @@ func _get_step_text(step: int) -> Dictionary:
 			return {"title": "第二章汇报", "body": "你已带回主井外环的调查结果，返回农场向父亲汇报。", "objective": "当前目标：向父亲汇报主井外环线索"}
 		GuideStep.REPORT_SEALED_CONDUIT:
 			return {"title": "第三章汇报", "body": "你已带回封闭线路的调查结果，返回农场向父亲汇报。", "objective": "当前目标：向父亲汇报封闭线路线索"}
+		GuideStep.REPORT_PROTOCOL_JUNCTION:
+			return {"title": "第四章汇报", "body": "你已带回协议汇流节点的调查结果，返回农场向父亲汇报。", "objective": "当前目标：向父亲汇报协议汇流节点线索"}
 		GuideStep.FREE_ROAM:
-			return {"title": "第三章完成", "body": "封闭线路章节已经收口，可以自由活动或继续准备下一段主线。", "objective": "当前目标：自由探索"}
+			return {"title": "第四章完成", "body": "协议汇流节点章节已经收口，可以自由活动或继续准备下一段主线。", "objective": "当前目标：自由探索"}
 	return {"title": "", "body": "", "objective": ""}
 
 func _set_step(step: int) -> void:
@@ -414,7 +437,7 @@ func _set_step(step: int) -> void:
 	if _hud and step != GuideStep.FREE_ROAM:
 		_hud.show_toast("下一目标：%s" % text.objective.replace("当前目标：", ""), 0, 2.1)
 	elif _hud:
-		_hud.show_toast("第三章完成：封闭线路已汇报。", 1, 2.2)
+		_hud.show_toast("第四章完成：协议汇流节点已汇报。", 1, 2.2)
 
 func _find_any_mature_crop():
 	for crop in _crop_system._crops:

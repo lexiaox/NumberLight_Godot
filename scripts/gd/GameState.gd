@@ -18,6 +18,10 @@ static var third_subarea_unlocked: bool = false
 static var investigated_sealed_conduit: bool = false
 static var pending_sealed_conduit_report: bool = false
 static var reported_sealed_conduit: bool = false
+static var fourth_subarea_unlocked: bool = false
+static var investigated_protocol_junction: bool = false
+static var pending_protocol_junction_report: bool = false
+static var reported_protocol_junction: bool = false
 
 static var pending_farm_spawn: String = ""
 static var pending_notice: String = ""
