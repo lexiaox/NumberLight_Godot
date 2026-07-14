@@ -19,7 +19,7 @@ func _ready() -> void:
 	update_zone_label()
 
 func _process(_delta: float) -> void:
-	var zone = get_current_zone()
+	var zone := get_current_zone()
 	if zone != _current_zone:
 		_current_zone = zone
 		update_zone_label()
@@ -32,14 +32,14 @@ func create_zones() -> void:
 func _create_field_zones(prefix: String, start_col: int) -> void:
 	for row_block in range(2):
 		for col_block in range(3):
-			var zone_num: int = row_block * 3 + col_block + 1
-			var zone_name: String = "%s%d" % [prefix, zone_num]
-			var col: int = start_col + col_block * zone_tile_w
-			var row: int = field_row_start + row_block * zone_tile_h
-			var x: int = col * tile_pixel_size
-			var y: int = row * tile_pixel_size
-			var width: int = zone_tile_w * tile_pixel_size
-			var height: int = zone_tile_h * tile_pixel_size
+			var zone_num := row_block * 3 + col_block + 1
+			var zone_name := "%s%d" % [prefix, zone_num]
+			var col := start_col + col_block * zone_tile_w
+			var row := field_row_start + row_block * zone_tile_h
+			var x := col * tile_pixel_size
+			var y := row * tile_pixel_size
+			var width := zone_tile_w * tile_pixel_size
+			var height := zone_tile_h * tile_pixel_size
 			_zones.append({
 				"name": zone_name,
 				"bounds": Rect2(x, y, width, height),
@@ -50,7 +50,7 @@ func _create_field_zones(prefix: String, start_col: int) -> void:
 func get_current_zone() -> Dictionary:
 	if not _player:
 		return {}
-	var pos: Vector2 = _player.position
+	var pos := _player.position
 	for zone in _zones:
 		var bounds: Rect2 = zone.get("bounds", Rect2())
 		if bounds.has_point(pos):
@@ -68,7 +68,7 @@ func plant_crop(zone_name: String, crop_name: String) -> bool:
 	return false
 
 func can_interact_with_zone(zone_name: String) -> bool:
-	var current: Dictionary = get_current_zone()
+	var current := get_current_zone()
 	return not current.is_empty() and str(current.get("name", "")) == zone_name
 
 func clear_crop(zone_name: String) -> void:

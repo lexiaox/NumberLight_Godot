@@ -2,6 +2,7 @@ extends Node
 
 const ItemDatabase = preload("res://scripts/gd/ItemDatabase.gd")
 const FarmHUD = preload("res://scripts/gd/FarmHUD.gd")
+const UIFont = preload("res://scripts/ui/UIFont.gd")
 
 enum CropType { NONE, GEM_FLOWER, VINE }
 enum CropState { SEEDLING, GROWING, MATURE, THIRSTY, WITHERED }
@@ -42,8 +43,8 @@ func _process(delta: float) -> void:
 func update_crops(delta_sec: float) -> void:
 	if _day_night == null:
 		return
-	var hours_per_sec: float = 24.0 / maxf(_day_night.day_duration, 0.001)
-	var dh: float = delta_sec * hours_per_sec
+	var hours_per_sec := 24.0 / maxf(_day_night.day_duration, 0.001)
+	var dh := delta_sec * hours_per_sec
 	for i in range(_crops.size() - 1, -1, -1):
 		var crop = _crops[i]
 		if crop.state == CropState.WITHERED:
@@ -98,7 +99,7 @@ func update_vine(crop, dh: float) -> void:
 func try_plant() -> bool:
 	if _inventory == null or _zone_manager == null:
 		return false
-	var selected: int = _inventory.get_selected_item()
+	var selected := _inventory.get_selected_item()
 	if selected != ItemDatabase.SEED_GEM and selected != ItemDatabase.SEED_VINE:
 		return false
 	var zone: Dictionary = _zone_manager.get_current_zone()
@@ -108,7 +109,7 @@ func try_plant() -> bool:
 	if find_crop_at_zone(zone.name):
 		_hud.show_toast("这块地已经有作物了", FarmHUD.ToastKind.WARNING)
 		return false
-	var crop_type: int = CropType.GEM_FLOWER if selected == ItemDatabase.SEED_GEM else CropType.VINE
+	var crop_type := CropType.GEM_FLOWER if selected == ItemDatabase.SEED_GEM else CropType.VINE
 	var crop = {
 		"type": crop_type,
 		"state": CropState.SEEDLING,
@@ -165,8 +166,8 @@ func try_harvest() -> bool:
 	if crop == null or crop.state != CropState.MATURE:
 		_hud.show_toast("当前格子没有可收获的作物", FarmHUD.ToastKind.WARNING)
 		return false
-	var drop_id: int = ItemDatabase.GEM if crop.type == CropType.GEM_FLOWER else ItemDatabase.SEED_VINE
-	var drop_count: int = 1 if crop.type == CropType.GEM_FLOWER else 2
+	var drop_id := ItemDatabase.GEM if crop.type == CropType.GEM_FLOWER else ItemDatabase.SEED_VINE
+	var drop_count := 1 if crop.type == CropType.GEM_FLOWER else 2
 	if not _inventory.add_item(drop_id, drop_count):
 		_hud.show_toast("背包已满，无法收获", FarmHUD.ToastKind.WARNING)
 		return false
@@ -240,6 +241,7 @@ func show_mature_label(crop) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.position = crop.position + Vector2(-28, -68)
 	label.z_index = 20
+	label.add_theme_font_override("font", UIFont.get_font())
 	label.add_theme_font_size_override("font_size", 12)
 	label.add_theme_color_override("font_color", Color(1, 0.9, 0.2))
 	label.add_theme_color_override("font_outline_color", Color.BLACK)

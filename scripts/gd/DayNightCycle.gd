@@ -61,7 +61,7 @@ func _update_ui() -> void:
 	if _time_label:
 		_time_label.text = format_time(_current_time)
 	if _date_label:
-		_date_label.text = "Day %d" % _day_count
+		_date_label.text = "第 %d 天" % _day_count
 
 func format_time(hour: float) -> String:
 	var whole_hour: int = int(hour)

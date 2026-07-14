@@ -56,4 +56,3 @@ static func get_icon(item_id: int) -> Texture2D:
 
 static func is_watering_can(item_id: int) -> bool:
 	return item_id == WATERING_CAN_EMPTY or item_id == WATERING_CAN_FULL
-
