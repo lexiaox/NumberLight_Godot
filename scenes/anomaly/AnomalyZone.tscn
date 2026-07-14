@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/anomaly/AnomalyZoneController.cs" id="1"]
-[ext_resource type="Script" path="res://scripts/anomaly/AnomalyPlayerController.cs" id="2"]
+[ext_resource type="Script" path="res://scripts/anomaly/AnomalyZoneController.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/anomaly/AnomalyPlayerController.gd" id="2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/anomaly/anomaly_zone_map.png" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/anomaly/bramble_wall_full.png" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/anomaly/bramble_wall_half.png" id="5"]
@@ -302,7 +302,7 @@ offset_left = 16.0
 offset_top = 38.0
 offset_right = 590.0
 offset_bottom = 66.0
-text = "当前目标：调查异常光棱"
+text = "当前目标：调查异常核心"
 
 [node name="BottomBar" type="Panel" parent="UI"]
 offset_left = 24.0
@@ -315,7 +315,7 @@ offset_left = 16.0
 offset_top = 12.0
 offset_right = 860.0
 offset_bottom = 40.0
-text = "靠近异常光棱后按 E 调查"
+text = "靠近异常核心后按 E 调查"
 
 [node name="ToastLabel" type="Label" parent="UI"]
 visible = false

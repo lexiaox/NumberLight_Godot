@@ -60,6 +60,8 @@ func _ready() -> void:
 	_father_npc = _find_sprite_by_texture_path("character/father")
 	_sister_npc = _find_sprite_by_texture_path("character/sister")
 	_last_player_position = _player.global_position if _player else Vector2.ZERO
+	if GameState.anomaly_entry_unlocked:
+		_step = GuideStep.FINALE
 	call_deferred("_initialize_ui")
 	call_deferred("_ensure_camera")
 
@@ -77,6 +79,9 @@ func _process(_delta: float) -> void:
 func is_dialogue_open() -> bool:
 	return _dialog_panel != null and _dialog_panel.visible
 
+func is_anomaly_entry_ready() -> bool:
+	return _step == GuideStep.FINALE and GameState.anomaly_entry_unlocked
+
 func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> String:
 	match _step:
 		GuideStep.OPEN_CHEST, GuideStep.TAKE_ITEMS:
@@ -86,15 +91,17 @@ func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> Str
 		GuideStep.TALK_SISTER:
 			return "按 E 与姐姐交谈" if _is_near(_sister_npc, player_foot, 92.0) else "前往姐姐身边"
 		GuideStep.INSPECT_SIGNBOARD:
-			return "按 E 查看告示牌" if _is_near(_signboard, player_foot, 96.0) else "前往告示牌"
+			return "按 E 查看界碑" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口界碑"
 		GuideStep.RETURN_FATHER:
 			return "按 E 向父亲汇报" if _is_near(_father_npc, player_foot, 92.0) else "回去找父亲"
+		GuideStep.FINALE:
+			return "按 E 进入异常区" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口"
 		GuideStep.FILL_WATER:
 			if _is_near(_well_interact_point if _well_interact_point else _well, player_foot, 90.0):
 				return "切换空水壶后按 E 装水" if selected_item != ItemDatabase.WATERING_CAN_EMPTY else "按 E 装水"
 		GuideStep.SELECT_SEED, GuideStep.PLANT_CROP, GuideStep.WATER_CROP, GuideStep.SELECT_SCISSORS, GuideStep.HARVEST_CROP:
 			if not _zone_manager.get_current_zone().is_empty():
-				return "站在农田里按 E 互动"
+				return "站到农田里按 E 互动"
 	return ""
 
 func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> bool:
@@ -113,12 +120,12 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 			if _is_near(_sister_npc, player_foot, 92.0):
 				_start_dialogue("姐姐", [
 					"池塘那边最近总有奇怪的蓝光。",
-					"你先去看看告示牌，再回来告诉父亲。"
+					"你先去看看入口界碑，再回来告诉父亲。"
 				], func(): _set_step(GuideStep.INSPECT_SIGNBOARD))
 				return true
 		GuideStep.INSPECT_SIGNBOARD:
 			if _is_near(_signboard, player_foot, 96.0):
-				GameState.show_notice("你记下了告示牌上的异常调查路线。")
+				GameState.show_notice("你记下了界碑上的异常调查路线。")
 				_set_step(GuideStep.RETURN_FATHER)
 				return true
 		GuideStep.RETURN_FATHER:
@@ -126,7 +133,10 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 				_start_dialogue("父亲", [
 					"很好，农场这边的准备已经完成。",
 					"接下来你可以去异常区入口继续调查。"
-				], func(): _set_step(GuideStep.FINALE))
+				], func():
+					GameState.anomaly_entry_unlocked = true
+					_set_step(GuideStep.FINALE)
+				)
 				return true
 	return false
 
@@ -197,7 +207,7 @@ func _initialize_ui() -> void:
 
 	_marker_label = Label.new()
 	_marker_label.name = "GuideMarker"
-	_marker_label.text = "▲"
+	_marker_label.text = "▼"
 	_marker_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_marker_label.visible = false
 	_marker_label.add_theme_font_size_override("font_size", 22)
@@ -209,11 +219,11 @@ func _ensure_camera() -> void:
 		_player.ensure_camera()
 
 func _update_movement_progress() -> void:
-	if _player == null:
+	if _player == null or _step != GuideStep.MOVE:
 		return
 	_moved_distance += _player.global_position.distance_to(_last_player_position)
 	_last_player_position = _player.global_position
-	if _step == GuideStep.MOVE and _moved_distance >= 56.0:
+	if _moved_distance >= 56.0:
 		_set_step(GuideStep.OPEN_CHEST)
 
 func advance_passive_steps() -> void:
@@ -256,7 +266,7 @@ func advance_passive_steps() -> void:
 func refresh_guide_text() -> void:
 	if _hud == null:
 		return
-	var text = _get_step_text(_step)
+	var text := _get_step_text(_step)
 	_hud.set_objective(text.objective)
 	if _task_title_label:
 		_task_title_label.text = text.title
@@ -269,7 +279,7 @@ func update_world_marker() -> void:
 	if _marker_label == null:
 		return
 	var target = _get_current_target()
-	if target == null or _step == GuideStep.FINALE:
+	if target == null:
 		_marker_label.visible = false
 		return
 	var camera: Camera2D = get_viewport().get_camera_2d()
@@ -289,7 +299,7 @@ func _get_current_target():
 			return _father_npc
 		GuideStep.TALK_SISTER:
 			return _sister_npc
-		GuideStep.INSPECT_SIGNBOARD:
+		GuideStep.INSPECT_SIGNBOARD, GuideStep.FINALE:
 			return _signboard
 	return null
 
@@ -320,13 +330,13 @@ func _get_step_text(step: int) -> Dictionary:
 		GuideStep.TALK_FATHER:
 			return {"title": "第十二步", "body": "收获后去找父亲。", "objective": "当前目标：与父亲交谈"}
 		GuideStep.TALK_SISTER:
-			return {"title": "第十三步", "body": "再去找姐姐聊聊异常情况。", "objective": "当前目标：与姐姐交谈"}
+			return {"title": "第十三步", "body": "再去和姐姐聊聊异常情况。", "objective": "当前目标：与姐姐交谈"}
 		GuideStep.INSPECT_SIGNBOARD:
-			return {"title": "第十四步", "body": "去右侧告示牌查看异常调查路线。", "objective": "当前目标：查看告示牌"}
+			return {"title": "第十四步", "body": "去异常区入口界碑查看调查路线。", "objective": "当前目标：查看异常区入口"}
 		GuideStep.RETURN_FATHER:
-			return {"title": "第十五步", "body": "把告示牌上的信息告诉父亲。", "objective": "当前目标：返回父亲身边汇报"}
+			return {"title": "第十五步", "body": "把界碑上的信息告诉父亲。", "objective": "当前目标：返回父亲身边汇报"}
 		GuideStep.FINALE:
-			return {"title": "演示完成", "body": "农场主流程已跑通，可以继续自由探索。", "objective": "当前目标：主流程已完成"}
+			return {"title": "异常调查", "body": "农场准备完成，可以前往异常区继续推进主线。", "objective": "当前目标：进入异常区"}
 	return {"title": "", "body": "", "objective": ""}
 
 func _set_step(step: int) -> void:
@@ -337,6 +347,8 @@ func _set_step(step: int) -> void:
 	var text = _get_step_text(step)
 	if _hud and step != GuideStep.FINALE:
 		_hud.show_toast("下一目标：%s" % text.objective.replace("当前目标：", ""), 0, 2.1)
+	elif _hud and step == GuideStep.FINALE:
+		_hud.show_toast("主线更新：前往异常区。", 1, 2.2)
 
 func _find_any_mature_crop():
 	for crop in _crop_system._crops:

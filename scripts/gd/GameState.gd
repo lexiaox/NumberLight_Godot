@@ -2,6 +2,11 @@ class_name GameState
 extends Node
 
 static var is_modal_ui_open: bool = false
+static var anomaly_entry_unlocked: bool = false
+static var investigated_anomaly_core: bool = false
+static var viewed_maintenance_clue: bool = false
+static var pending_farm_spawn: String = ""
+static var pending_notice: String = ""
 
 static func show_notice(text: String, duration: float = 1.8) -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
@@ -16,3 +21,13 @@ static func warn(text: String) -> void:
 
 static func error(text: String) -> void:
 	push_error(text)
+
+static func queue_farm_return(spawn_key: String, notice: String = "") -> void:
+	pending_farm_spawn = spawn_key
+	pending_notice = notice
+
+static func take_pending_notice() -> String:
+	var text := pending_notice
+	pending_notice = ""
+	return text
+

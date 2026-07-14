@@ -51,3 +51,4 @@ func show_toast(text: String, kind: int = ToastKind.INFO, duration: float = 2.0)
 			_toast_label.modulate = Color(1.0, 0.9, 0.72)
 		_:
 			_toast_label.modulate = Color(0.9, 0.96, 1.0)
+

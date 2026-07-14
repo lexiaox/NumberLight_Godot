@@ -2,7 +2,8 @@ extends Node
 
 const GameState = preload("res://scripts/gd/GameState.gd")
 const ItemDatabase = preload("res://scripts/gd/ItemDatabase.gd")
-const FarmHUD = preload("res://scripts/gd/FarmHUD.gd")
+
+const ANOMALY_SCENE_PATH := "res://scenes/anomaly/AnomalyZone.tscn"
 
 @export var well_interact_range: float = 84.0
 @export var stele_interact_range: float = 92.0
@@ -59,7 +60,10 @@ func _process(_delta: float) -> void:
 		return
 
 	if can_inspect_stele(player_foot):
-		GameState.show_notice("这里是异常区入口界碑，继续向前可进入异常调查区域。")
+		if _guide_controller and _guide_controller.has_method("is_anomaly_entry_ready") and _guide_controller.is_anomaly_entry_ready():
+			get_tree().change_scene_to_file(ANOMALY_SCENE_PATH)
+		else:
+			GameState.show_notice("这里是异常区入口界碑，完成农场引导后即可进入异常调查区域。")
 		return
 
 	if _zone_manager == null or _crop_system == null:
@@ -122,7 +126,7 @@ func update_interaction_hint(player_position: Vector2) -> void:
 			return
 
 	if can_inspect_stele(player_position):
-		_hud.set_interaction_hint("靠近界碑：按 E 查看异常区入口标识")
+		_hud.set_interaction_hint("靠近界碑：按 E 查看异常区入口")
 		return
 
 	if _chest != null and _chest.can_interact_from(player_position):
