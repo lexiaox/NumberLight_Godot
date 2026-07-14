@@ -21,6 +21,7 @@ enum GuideStep {
 	RETURN_FATHER,
 	ENTER_ANOMALY,
 	REPORT_NORTHBANK,
+	REPORT_MAIN_WELL,
 	FREE_ROAM
 }
 
@@ -62,10 +63,14 @@ func _ready() -> void:
 	_father_npc = _find_sprite_by_texture_path("character/father")
 	_sister_npc = _find_sprite_by_texture_path("character/sister")
 	_last_player_position = _player.global_position if _player else Vector2.ZERO
-	if GameState.pending_anomaly_report and not GameState.reported_northbank_sluice:
+
+	if GameState.pending_main_well_report and not GameState.reported_main_well_outer_ring:
+		_step = GuideStep.REPORT_MAIN_WELL
+	elif GameState.pending_anomaly_report and not GameState.reported_northbank_sluice:
 		_step = GuideStep.REPORT_NORTHBANK
 	elif GameState.anomaly_entry_unlocked:
 		_step = GuideStep.ENTER_ANOMALY
+
 	call_deferred("_initialize_ui")
 	call_deferred("_ensure_camera")
 
@@ -102,6 +107,8 @@ func get_story_interaction_hint(player_foot: Vector2, selected_item: int) -> Str
 			return "按 E 进入异常区" if _is_near(_signboard, player_foot, 96.0) else "前往异常区入口"
 		GuideStep.REPORT_NORTHBANK:
 			return "按 E 向父亲汇报北岸线索" if _is_near(_father_npc, player_foot, 92.0) else "返回父亲身边汇报"
+		GuideStep.REPORT_MAIN_WELL:
+			return "按 E 向父亲汇报主井外环线索" if _is_near(_father_npc, player_foot, 92.0) else "返回父亲身边汇报"
 		GuideStep.FILL_WATER:
 			if _is_near(_well_interact_point if _well_interact_point else _well, player_foot, 90.0):
 				return "切换空水壶后按 E 装水" if selected_item != ItemDatabase.WATERING_CAN_EMPTY else "按 E 装水"
@@ -147,11 +154,23 @@ func try_handle_story_interaction(player_foot: Vector2, _selected_item: int) -> 
 		GuideStep.REPORT_NORTHBANK:
 			if _is_near(_father_npc, player_foot, 92.0):
 				_start_dialogue("父亲", [
-					"北岸导流槽的锚点果然还留着人为拆卸的痕迹。",
-					"这说明异常已经顺着北侧链路继续扩散了。你先休整一下，下一步我们再继续追查主井外环。"
+					"北岸导流槽的锚点果然留着人为拆卸的痕迹。",
+					"下一步去主井外环，那里应该能接上更深的异常链路。"
 				], func():
 					GameState.pending_anomaly_report = false
 					GameState.reported_northbank_sluice = true
+					GameState.second_subarea_unlocked = true
+					_set_step(GuideStep.ENTER_ANOMALY)
+				)
+				return true
+		GuideStep.REPORT_MAIN_WELL:
+			if _is_near(_father_npc, player_foot, 92.0):
+				_start_dialogue("父亲", [
+					"主井外环的转运节点也被异常侵蚀了，说明问题已经不只是边缘扰动。",
+					"这一章先收口到这里，后面我们再继续追查更深处的设施。"
+				], func():
+					GameState.pending_main_well_report = false
+					GameState.reported_main_well_outer_ring = true
 					_set_step(GuideStep.FREE_ROAM)
 				)
 				return true
@@ -161,6 +180,7 @@ func _initialize_ui() -> void:
 	var ui = get_tree().current_scene.get_node_or_null("UI")
 	if ui == null:
 		return
+
 	_task_panel = PanelContainer.new()
 	_task_panel.name = "GuideTaskPanel"
 	_task_panel.offset_left = 18
@@ -224,7 +244,7 @@ func _initialize_ui() -> void:
 
 	_marker_label = Label.new()
 	_marker_label.name = "GuideMarker"
-	_marker_label.text = "▼"
+	_marker_label.text = "目标"
 	_marker_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_marker_label.visible = false
 	_marker_label.add_theme_font_size_override("font_size", 22)
@@ -303,7 +323,7 @@ func update_world_marker() -> void:
 	var viewport_position: Vector2 = target.global_position
 	if camera != null:
 		viewport_position = target.global_position - camera.get_screen_center_position() + get_viewport().get_visible_rect().size / 2.0 + Vector2(0, -54)
-	_marker_label.position = viewport_position - Vector2(10, 34)
+	_marker_label.position = viewport_position - Vector2(18, 34)
 	_marker_label.visible = true
 
 func _get_current_target():
@@ -312,7 +332,7 @@ func _get_current_target():
 			return _chest
 		GuideStep.FILL_WATER:
 			return _well_interact_point if _well_interact_point else _well
-		GuideStep.TALK_FATHER, GuideStep.RETURN_FATHER, GuideStep.REPORT_NORTHBANK:
+		GuideStep.TALK_FATHER, GuideStep.RETURN_FATHER, GuideStep.REPORT_NORTHBANK, GuideStep.REPORT_MAIN_WELL:
 			return _father_npc
 		GuideStep.TALK_SISTER:
 			return _sister_npc
@@ -323,7 +343,7 @@ func _get_current_target():
 func _get_step_text(step: int) -> Dictionary:
 	match step:
 		GuideStep.MOVE:
-			return {"title": "第一步", "body": "先移动角色，熟悉操作。", "objective": "当前目标：先移动一下"}
+			return {"title": "第一步", "body": "先移动角色，熟悉操作。", "objective": "当前目标：先移动一圈"}
 		GuideStep.OPEN_CHEST:
 			return {"title": "第二步", "body": "走到箱子旁边，按 E 打开。", "objective": "当前目标：前往箱子"}
 		GuideStep.TAKE_ITEMS:
@@ -353,11 +373,15 @@ func _get_step_text(step: int) -> Dictionary:
 		GuideStep.RETURN_FATHER:
 			return {"title": "第十五步", "body": "把界碑上的信息告诉父亲。", "objective": "当前目标：返回父亲身边汇报"}
 		GuideStep.ENTER_ANOMALY:
+			if GameState.second_subarea_unlocked and not GameState.reported_main_well_outer_ring:
+				return {"title": "第二章推进", "body": "北岸线索已经汇报完成，重新进入异常区，前往主井外环。", "objective": "当前目标：进入异常区调查主井外环"}
 			return {"title": "异常调查", "body": "农场准备完成，可以前往异常区继续推进主线。", "objective": "当前目标：进入异常区"}
 		GuideStep.REPORT_NORTHBANK:
 			return {"title": "阶段汇报", "body": "你已带回北岸导流槽的调查结果，先去向父亲汇报。", "objective": "当前目标：向父亲汇报北岸线索"}
+		GuideStep.REPORT_MAIN_WELL:
+			return {"title": "阶段汇报", "body": "你已带回主井外环的调查结果，返回农场向父亲汇报。", "objective": "当前目标：向父亲汇报主井外环线索"}
 		GuideStep.FREE_ROAM:
-			return {"title": "第一章完成", "body": "北岸导流槽章节已收口，可以自由活动或准备下一段主线。", "objective": "当前目标：自由探索"}
+			return {"title": "第二章完成", "body": "主井外环章节已经收口，可以自由活动或继续准备下一段主线。", "objective": "当前目标：自由探索"}
 	return {"title": "", "body": "", "objective": ""}
 
 func _set_step(step: int) -> void:
@@ -369,7 +393,7 @@ func _set_step(step: int) -> void:
 	if _hud and step != GuideStep.FREE_ROAM:
 		_hud.show_toast("下一目标：%s" % text.objective.replace("当前目标：", ""), 0, 2.1)
 	elif _hud:
-		_hud.show_toast("第一章完成：北岸导流槽已汇报。", 1, 2.2)
+		_hud.show_toast("第二章完成：主井外环已汇报。", 1, 2.2)
 
 func _find_any_mature_crop():
 	for crop in _crop_system._crops:

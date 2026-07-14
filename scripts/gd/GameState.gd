@@ -10,6 +10,10 @@ static var first_subarea_unlocked: bool = false
 static var investigated_northbank_sluice: bool = false
 static var pending_anomaly_report: bool = false
 static var reported_northbank_sluice: bool = false
+static var second_subarea_unlocked: bool = false
+static var investigated_main_well_outer_ring: bool = false
+static var pending_main_well_report: bool = false
+static var reported_main_well_outer_ring: bool = false
 
 static var pending_farm_spawn: String = ""
 static var pending_notice: String = ""
