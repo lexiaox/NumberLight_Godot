@@ -2,6 +2,7 @@ extends Node
 
 const GameState = preload("res://scripts/gd/GameState.gd")
 const ItemDatabase = preload("res://scripts/gd/ItemDatabase.gd")
+const UIFont = preload("res://scripts/ui/UIFont.gd")
 
 enum GuideStep {
 	MOVE,
@@ -285,6 +286,9 @@ func _initialize_ui() -> void:
 	_marker_label.visible = false
 	_marker_label.add_theme_font_size_override("font_size", 22)
 	ui.add_child(_marker_label)
+	UIFont.apply_to_subtree(_task_panel)
+	UIFont.apply_to_subtree(_dialog_panel)
+	UIFont.apply_to_subtree(_marker_label)
 	refresh_guide_text()
 
 func _ensure_camera() -> void:

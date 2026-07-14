@@ -2,6 +2,7 @@ extends Sprite2D
 
 const GameState = preload("res://scripts/gd/GameState.gd")
 const ItemDatabase = preload("res://scripts/gd/ItemDatabase.gd")
+const UIFont = preload("res://scripts/ui/UIFont.gd")
 
 @export var interact_range: float = 92.0
 
@@ -36,7 +37,7 @@ func _process(delta: float) -> void:
 		close_chest()
 	if _ui_visible and not _player_near:
 		close_chest()
-		GameState.show_notice("离箱子太远，已自动关闭")
+		GameState.show_notice("离箱子太远，已自动关闭。")
 	if _ui_visible:
 		handle_grid_navigation()
 		_pulse_time += delta
@@ -71,7 +72,7 @@ func open_chest() -> bool:
 	if _chest_ui:
 		_chest_ui.visible = true
 	call_deferred("update_grid_cursor")
-	GameState.show_notice("已打开箱子")
+	GameState.show_notice("已打开箱子。")
 	return true
 
 func close_chest() -> void:
@@ -89,10 +90,10 @@ func try_take_selected_item() -> bool:
 		return false
 	var item_id := _contents[_grid_index]
 	if item_id == ItemDatabase.NONE:
-		GameState.show_notice("这个格子是空的")
+		GameState.show_notice("这个格子是空的。")
 		return false
 	if not _inventory or not _inventory.add_item(item_id, 1):
-		GameState.show_notice("背包已满，无法取出更多物品")
+		GameState.show_notice("背包已满，无法取出更多物品。")
 		return false
 	_contents[_grid_index] = ItemDatabase.NONE
 	refresh_grid()
@@ -228,6 +229,7 @@ func build_chest_ui() -> void:
 		ui.add_child(_chest_ui)
 	else:
 		get_tree().current_scene.add_child(_chest_ui)
+	UIFont.apply_to_subtree(_chest_ui)
 
 func refresh_grid() -> void:
 	for i in range(_grid_slots.size()):

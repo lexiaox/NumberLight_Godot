@@ -1,6 +1,7 @@
 extends Node2D
 
 const GameState = preload("res://scripts/gd/GameState.gd")
+const UIFont = preload("res://scripts/ui/UIFont.gd")
 
 const FARM_SCENE_PATH := "res://scenes/farm/DayFarm.tscn"
 
@@ -26,6 +27,7 @@ func _ready() -> void:
 	_dialogue_panel = get_node_or_null("UI/DialoguePanel")
 	_dialogue_speaker = get_node_or_null("UI/DialoguePanel/Margin/VBox/SpeakerLabel")
 	_dialogue_body = get_node_or_null("UI/DialoguePanel/Margin/VBox/BodyLabel")
+	UIFont.apply_to_subtree(get_node_or_null("UI"))
 	GameState.is_modal_ui_open = false
 	if _dialogue_panel:
 		_dialogue_panel.visible = false

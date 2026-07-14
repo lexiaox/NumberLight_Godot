@@ -1,5 +1,7 @@
 extends Node
 
+const UIFont = preload("res://scripts/ui/UIFont.gd")
+
 enum ToastKind { INFO, SUCCESS, WARNING }
 
 @onready var _objective_label: Label = get_tree().current_scene.get_node_or_null("UI/TopBar/ObjectiveLabel")
@@ -10,6 +12,7 @@ enum ToastKind { INFO, SUCCESS, WARNING }
 var _toast_timer: float = 0.0
 
 func _ready() -> void:
+	UIFont.apply_to_subtree(get_tree().current_scene.get_node_or_null("UI"))
 	set_objective("前往箱子")
 	set_selected_item_name("未选择")
 	set_interaction_hint("移动：WASD  互动：E  切换道具：左右方向键")

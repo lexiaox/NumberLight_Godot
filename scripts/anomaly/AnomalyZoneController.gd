@@ -1,6 +1,7 @@
 extends Node2D
 
 const GameState = preload("res://scripts/gd/GameState.gd")
+const UIFont = preload("res://scripts/ui/UIFont.gd")
 
 const FARM_SCENE_PATH := "res://scenes/farm/DayFarm.tscn"
 const NORTH_BANK_SCENE_PATH := "res://scenes/anomaly/NorthBankTrail.tscn"
@@ -52,6 +53,8 @@ func _ready() -> void:
 	_speaker_label = get_node_or_null("UI/DialoguePanel/Margin/VBox/SpeakerLabel")
 	_body_label = get_node_or_null("UI/DialoguePanel/Margin/VBox/BodyLabel")
 	_entry_label = get_node_or_null("Decorations/SubAreaEntrance/EntryLabel")
+	UIFont.apply_to_subtree(get_node_or_null("UI"))
+	UIFont.apply_to_subtree(_entry_label)
 	if _dialogue_panel:
 		_dialogue_panel.visible = false
 	if _toast_label:
