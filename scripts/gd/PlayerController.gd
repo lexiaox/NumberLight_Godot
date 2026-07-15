@@ -89,7 +89,6 @@ func ensure_camera() -> void:
 		_camera.zoom = Vector2.ONE
 		add_child(_camera)
 	_camera.make_current()
-	_apply_camera_limits()
 
 func configure_world_bounds() -> void:
 	var tilemaps := []
@@ -106,7 +105,6 @@ func configure_world_bounds() -> void:
 		_world_bounds = Rect2(0, 0, 1280, 720)
 	else:
 		_world_bounds = merged.grow(24.0)
-	_apply_camera_limits()
 
 func _collect_tilemaps(node: Node, result: Array) -> void:
 	for child in node.get_children():
@@ -124,14 +122,6 @@ func _get_tilemap_world_rect(tile_map: TileMap) -> Rect2:
 	var top_left := tile_map.to_global(Vector2(used_rect.position) * tile_size)
 	var bottom_right := tile_map.to_global(Vector2(used_rect.position + used_rect.size) * tile_size)
 	return Rect2(top_left, bottom_right - top_left)
-
-func _apply_camera_limits() -> void:
-	if _camera == null or _world_bounds.size == Vector2.ZERO:
-		return
-	_camera.limit_left = int(_world_bounds.position.x)
-	_camera.limit_top = int(_world_bounds.position.y)
-	_camera.limit_right = int(_world_bounds.end.x)
-	_camera.limit_bottom = int(_world_bounds.end.y)
 
 func _physics_process(_delta: float) -> void:
 	if GameState.is_modal_ui_open:
