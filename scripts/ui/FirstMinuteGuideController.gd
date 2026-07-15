@@ -328,7 +328,7 @@ func refresh_guide_text() -> void:
 		return
 	var text := _get_step_text(_step)
 	_hud.set_objective(text.objective)
-	var selected_item := _inventory.get_selected_item() if _inventory else ItemDatabase.NONE
+	var selected_item: int = _inventory.get_selected_item() if _inventory else ItemDatabase.NONE
 	_hud.set_selected_item_name(ItemDatabase.get_item_name(selected_item) if selected_item != ItemDatabase.NONE else "未选择")
 
 func update_world_marker() -> void:
@@ -339,7 +339,7 @@ func update_world_marker() -> void:
 		_marker_label.visible = false
 		return
 	var camera: Camera2D = get_viewport().get_camera_2d()
-	var viewport_position := target.global_position
+	var viewport_position: Vector2 = target.global_position
 	if camera != null:
 		viewport_position = target.global_position - camera.get_screen_center_position() + get_viewport().get_visible_rect().size / 2.0
 	var bob_offset := sin(Time.get_ticks_msec() / 180.0) * 4.0

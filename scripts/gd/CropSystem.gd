@@ -99,7 +99,7 @@ func update_vine(crop, dh: float) -> void:
 func try_plant() -> bool:
 	if _inventory == null or _zone_manager == null:
 		return false
-	var selected := _inventory.get_selected_item()
+	var selected: int = _inventory.get_selected_item()
 	if selected != ItemDatabase.SEED_GEM and selected != ItemDatabase.SEED_VINE:
 		return false
 	var zone: Dictionary = _zone_manager.get_current_zone()

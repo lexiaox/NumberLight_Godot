@@ -39,24 +39,25 @@ func create_animated_sprite() -> void:
 	_animated_sprite.scale = Vector2(display_scale * width_slim_factor, display_scale)
 	var sf := SpriteFrames.new()
 	for dir in ANIM_NAMES:
-		var idle_name := "idle_" + dir
-		var idle_path := FRAMES_DIR + "idle_" + dir + "_0.png"
+		var idle_name: String = "idle_" + dir
+		var idle_path: String = FRAMES_DIR + "idle_" + dir + "_0.png"
 		var idle_tex: Texture2D = load(idle_path)
 		if idle_tex:
 			sf.add_animation(idle_name)
 			sf.add_frame(idle_name, idle_tex)
-		var run_name := "run_" + dir
+		var run_name: String = "run_" + dir
 		sf.add_animation(run_name)
 		sf.set_animation_loop(run_name, true)
 		sf.set_animation_speed(run_name, animation_fps)
 		for i in range(RUN_FRAME_COUNT):
-			var frame_path := FRAMES_DIR + "run_" + dir + "_" + str(i) + ".png"
+			var frame_path: String = FRAMES_DIR + "run_" + dir + "_" + str(i) + ".png"
 			var frame_tex: Texture2D = load(frame_path)
 			if frame_tex:
 				sf.add_frame(run_name, frame_tex)
 	_animated_sprite.sprite_frames = sf
 	_animated_sprite.animation = "idle_down"
 	add_child(_animated_sprite)
+	_animated_sprite.play("idle_down")
 
 func create_collision_shape() -> void:
 	var cs := CollisionShape2D.new()
@@ -171,14 +172,14 @@ func update_animation(direction: Vector2) -> void:
 		else:
 			new_facing = Facing.LEFT if direction.x < 0 else Facing.RIGHT
 		_current_facing = new_facing
-	var anim_name := prefix + "_" + ANIM_NAMES[new_facing]
+	var anim_name: String = prefix + "_" + ANIM_NAMES[new_facing]
 	if _animated_sprite.animation != anim_name and _animated_sprite.sprite_frames.has_animation(anim_name):
 		_animated_sprite.play(anim_name)
 
 func update_hand_item() -> void:
 	if not _hand_item or not _inventory:
 		return
-	var held_id := _inventory.get_selected_item()
+	var held_id: int = _inventory.get_selected_item()
 	if held_id == _last_held_item_id:
 		return
 	_last_held_item_id = held_id

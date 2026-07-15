@@ -81,10 +81,10 @@ func try_add_collision(sprite: Sprite2D) -> bool:
 	var sy := sprite.scale.y
 	var off_x := cx_off * sx
 	var off_y := cy_off * sy
-	var col_w := cw * sx * profile.w * collision_scale
-	var col_h := ch * sy * profile.h * collision_scale
+	var col_w: float = cw * sx * profile.w * collision_scale
+	var col_h: float = ch * sy * profile.h * collision_scale
 	var col_x := off_x
-	var col_y := off_y + ch * sy * profile.y
+	var col_y: float = off_y + ch * sy * profile.y
 
 	var body := StaticBody2D.new()
 	body.name = "Collision"

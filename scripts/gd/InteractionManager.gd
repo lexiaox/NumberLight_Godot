@@ -37,7 +37,7 @@ func _process(_delta: float) -> void:
 		return
 
 	var player_foot := get_player_foot_position()
-	var selected_item := _inventory.get_selected_item()
+	var selected_item: int = _inventory.get_selected_item()
 
 	if _guide_controller and _guide_controller.has_method("try_handle_story_interaction"):
 		if _guide_controller.try_handle_story_interaction(player_foot, selected_item):
@@ -47,7 +47,7 @@ func _process(_delta: float) -> void:
 		_chest.try_take_selected_item()
 		return
 
-	var chest_available := _chest != null and _chest.can_interact_from(player_foot)
+	var chest_available: bool = _chest != null and _chest.can_interact_from(player_foot)
 	var well_available := can_interact_with_well(player_foot)
 
 	if chest_available and should_focus_chest(player_foot, well_available):
@@ -103,7 +103,7 @@ func can_inspect_stele(player_position: Vector2) -> bool:
 func should_focus_chest(player_position: Vector2, well_available: bool) -> bool:
 	if not well_available or _chest == null or _well_interact_point == null:
 		return true
-	var chest_distance := _chest.get_interact_distance(player_position)
+	var chest_distance: float = _chest.get_interact_distance(player_position)
 	var well_distance := player_position.distance_to(_well_interact_point.global_position)
 	return chest_distance <= well_distance
 
@@ -142,7 +142,7 @@ func update_interaction_hint(player_position: Vector2) -> void:
 
 	var current_zone: Dictionary = _zone_manager.get_current_zone() if _zone_manager else {}
 	if not current_zone.is_empty():
-		var selected_item := _inventory.get_selected_item()
+		var selected_item: int = _inventory.get_selected_item()
 		if selected_item == ItemDatabase.SEED_GEM or selected_item == ItemDatabase.SEED_VINE:
 			_hud.set_interaction_hint("站在农田里：按 E 播种")
 		elif selected_item == ItemDatabase.WATERING_CAN_FULL:
